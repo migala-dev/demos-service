@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CognitoService } from './cognito.service';
 import { ConfigService } from '@nestjs/config';
-import { loginConstants } from '../../../../../../test/mocks/constants/constants';
+import { loginConstants } from '../../../../../../../test/mocks/constants/constants';
 
 describe('CognitoService', () => {
   let service: CognitoService;

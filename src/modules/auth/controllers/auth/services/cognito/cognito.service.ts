@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CognitoUser } from '../models/cognito-user.model';
+import { CognitoUser } from '../../models/cognito-user.model';
 import {
   CognitoUserPool,
   ICognitoUserPoolData,
