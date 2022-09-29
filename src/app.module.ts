@@ -7,7 +7,7 @@ import { SpacesModule } from './modules/spaces/spaces.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreModule } from './core/core.module';
-
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -25,6 +25,7 @@ import { CoreModule } from './core/core.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         ssl: { rejectUnauthorized: false },
         synchronize: true,
+        namingStrategy: new SnakeNamingStrategy(),
       }),
       inject: [ConfigService],
     }),

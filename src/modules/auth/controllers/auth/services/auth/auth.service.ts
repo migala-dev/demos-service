@@ -3,6 +3,7 @@ import { CognitoService } from '../cognito/cognito.service';
 import { CognitoUser } from '../../models/cognito-user.model';
 import { UsersService } from '../../../../../../core/database/services/user.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
+import { LoginResponse } from '../../response/login.response';
 
 @Injectable()
 export class AuthService {

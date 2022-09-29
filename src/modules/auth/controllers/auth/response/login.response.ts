@@ -1,3 +1,3 @@
-interface LoginResponse {
+export interface LoginResponse {
     session: string;
 }
