@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CognitoService } from '../cognito/cognito.service';
 import { CognitoUser } from '../../models/cognito-user.model';
-import { UsersService } from 'src/core/database/services/user.service';
+import { UsersService } from '../../../../../../core/database/services/user.service';
+import { User } from '../../../../../../core/database/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -16,12 +17,19 @@ export class AuthService {
             return this.login(phoneNumber);
         }
 
-        await this.checkUserRecord(cognitoUser.cognitoId);
+        await this.checkUserRecord(phoneNumber, cognitoUser.cognitoId);
 
         return { session: cognitoUser.session };
     }
 
-    private async checkUserRecord(cognitId: string): Promise<void> {
-        
+    private async checkUserRecord(phoneNumber: string, cognitoId: string): Promise<void> {
+        let user: User = await this.usersService.findOneByCognitoId(cognitoId);
+        if(!user) {
+            user = await this.usersService.findOneByPhoneNumber(phoneNumber);
+            if(!user) {
+                return this.usersService.create(phoneNumber, cognitoId).then(() => null);
+            }
+            return this.usersService.updateCognitoId(user.userId, cognitoId).then(() => null);
+        }
     }
 }

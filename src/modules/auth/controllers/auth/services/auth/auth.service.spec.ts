@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
 import { loginConstants } from '../../../../../../../test/mocks/constants/constants';
 import { AuthService } from './auth.service';
 import { CognitoService } from '../cognito/cognito.service';
 import { createSpyObj } from 'jest-createspyobj';
 import { CognitoUser } from '../../models/cognito-user.model';
-import { UsersService } from 'src/core/database/services/user.service';
+import { UsersService } from '../../../../../../core/database/services/user.service';
+import { User } from '../../../../../../core/database/entities/user.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -13,7 +13,8 @@ describe('AuthService', () => {
   let userSpyService: jest.Mocked<UsersService>;
 
   beforeEach(async () => {
-		cognitoSpyService = createSpyObj(CognitoService)
+    cognitoSpyService = createSpyObj(CognitoService);
+    userSpyService = createSpyObj(UsersService);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -29,6 +30,8 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+
+    userSpyService.findOneByCognitoId.mockReturnValue((async () => ({}) as User)());
   });
 
   it('should be defined', () => {
@@ -52,17 +55,7 @@ describe('AuthService', () => {
     expect(cognitoSpyService.signIn).toHaveBeenCalledWith(phoneNumber);
   });
 
-
-  it('should create a new user if the cognito id it was not found and there is no user created with that phone', () => {
-    throw('not implemented')
-  })
-
-  it('should update the cognitoId if the cognito id it was not found and there is a user created with that phone', () => {
-    throw('not implemented');
-  });
-
-
-  it('should do nothing if the cognito id was found on the database', async () => {
+  it('should create a new user if the cognito id it was not found and there is no user created with that phone', async () => {
     const phoneNumber = loginConstants.phoneNumber;
     cognitoSpyService.signIn.mockReturnValue(
       (async () =>
@@ -71,14 +64,42 @@ describe('AuthService', () => {
           loginConstants.cognitoMockId,
         ))(),
     );
+    userSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
+    userSpyService.findOneByPhoneNumber.mockReturnValue((async () => null)());
+    userSpyService.create.mockReturnValue((async () => ({}) as any)());
 
-    const loginResponse = await service.login(phoneNumber);
+    await service.login(phoneNumber);
 
-    // Look cognitoId for the on the database
-    userSpyService.findOneByCognitoId
     expect(userSpyService.findOneByCognitoId).toHaveBeenCalled();
-			// if the user already exist it should update the cognitoId
+    expect(userSpyService.findOneByPhoneNumber).toHaveBeenCalled();
+    expect(userSpyService.findOneByPhoneNumber.mock.calls[0][0]).toBe(phoneNumber);
+    expect(userSpyService.create).toHaveBeenCalled();
+    expect(userSpyService.create.mock.calls[0][0]).toBe(phoneNumber);
+    expect(userSpyService.create.mock.calls[0][1]).toBe(loginConstants.cognitoMockId);
+    expect(userSpyService.updateCognitoId.mock.calls.length).toBe(0);
+  });
 
+  it('should update the cognitoId if the cognito id it was not found and there is a user created with that phone', async () => {
+    const phoneNumber = loginConstants.phoneNumber;
+    cognitoSpyService.signIn.mockReturnValue(
+      (async () =>
+        new CognitoUser(
+          loginConstants.sessionMockToken,
+          loginConstants.cognitoMockId,
+        ))(),
+    );
+    const userId = 'user-id-mock'
+    userSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
+    userSpyService.findOneByPhoneNumber.mockReturnValue((async () => ({ userId }) as any)());
+    userSpyService.updateCognitoId.mockReturnValue((async () => ({}) as any)());
+
+    await service.login(phoneNumber);
+
+
+    expect(userSpyService.create.mock.calls.length).toBe(0);
+    expect(userSpyService.updateCognitoId).toHaveBeenCalled();
+    expect(userSpyService.updateCognitoId.mock.calls[0][0]).toBe(userId);
+    expect(userSpyService.updateCognitoId.mock.calls[0][1]).toBe(loginConstants.cognitoMockId);
   });
 
   it('should signUp the phoneNumber if the user does not exist on aws', async () => {
