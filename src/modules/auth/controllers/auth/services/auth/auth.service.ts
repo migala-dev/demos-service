@@ -5,7 +5,7 @@ import { UsersService } from '../../../../../../core/database/services/user.serv
 import { User } from '../../../../../../core/database/entities/user.entity';
 import { LoginResponse } from '../../response/login.response';
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
-import { UserDeviceService } from '../../../../../../core/database/services/user-device.service';
+import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +13,7 @@ export class AuthService {
     constructor(
       private readonly cognitoService: CognitoService, 
       private readonly usersService: UsersService,
-      private readonly userDeviceService: UserDeviceService,
+      private readonly userDevicesService: UserDevicesService,
     ) {}
 
     public async login(phoneNumber: string): Promise<LoginResponse> {
@@ -41,7 +41,7 @@ export class AuthService {
     }
 
     public async registerUserDevice(userId: string, deviceId: string): Promise<UserDevice> {
-      const userDevice: UserDevice = await this.userDeviceService.createOrUpdate(userId, deviceId);
+      const userDevice: UserDevice = await this.userDevicesService.createOrUpdate(userId, deviceId);
 
       return userDevice;
     }

@@ -6,19 +6,19 @@ import { createSpyObj } from 'jest-createspyobj';
 import { CognitoUser } from '../../models/cognito-user.model';
 import { UsersService } from '../../../../../../core/database/services/user.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
-import { UserDeviceService } from '../../../../../../core/database/services/user-device.service';
+import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
   let cognitoSpyService: jest.Mocked<CognitoService>;
   let userSpyService: jest.Mocked<UsersService>;
-  let userDeviceSpyService: jest.Mocked<UserDeviceService>;
+  let userDevicesSpyService: jest.Mocked<UserDevicesService>;
 
   beforeEach(async () => {
     cognitoSpyService = createSpyObj(CognitoService);
     userSpyService = createSpyObj(UsersService);
-    userDeviceSpyService = createSpyObj(UserDeviceService);
+    userDevicesSpyService = createSpyObj(UserDevicesService);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -31,8 +31,8 @@ describe('AuthService', () => {
           useValue: userSpyService,
         },
         {
-          provide: UserDeviceService,
-          useValue: userDeviceSpyService,
+          provide: UserDevicesService,
+          useValue: userDevicesSpyService,
         },
       ],
     }).compile();
@@ -40,7 +40,7 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
 
     userSpyService.findOneByCognitoId.mockReturnValue((async () => ({}) as User)());
-    userDeviceSpyService.createOrUpdate.mockReturnValue((async () => ({}) as UserDevice)());
+    userDevicesSpyService.createOrUpdate.mockReturnValue((async () => ({}) as UserDevice)());
   });
 
   it('should be defined', () => {
@@ -156,14 +156,14 @@ describe('AuthService', () => {
       expect(registerUserDeviceSpyMethod).toHaveBeenCalledWith(userId, deviceId);
     });
 
-    it('should be called UserDeviceService createOrUpdate method', async () => {
+    it('should be called UserDevicesService createOrUpdate method', async () => {
       await service.registerUserDevice(userId, deviceId);
 
-      expect(userDeviceSpyService.createOrUpdate).toHaveBeenCalled();
+      expect(userDevicesSpyService.createOrUpdate).toHaveBeenCalled();
     });
 
     it('should return a UserDevice instance', async () => {
-      userDeviceSpyService.createOrUpdate.mockReturnValue((async () => {
+      userDevicesSpyService.createOrUpdate.mockReturnValue((async () => {
         const userDevice: UserDevice = new UserDevice();
 
         return userDevice;
@@ -178,7 +178,7 @@ describe('AuthService', () => {
       const expectedResult: UserDevice = new UserDevice();
       expectedResult.userId = userId;
       expectedResult.deviceId = deviceId;
-      userDeviceSpyService.createOrUpdate.mockReturnValue((async () => {
+      userDevicesSpyService.createOrUpdate.mockReturnValue((async () => {
         const userDevice = new UserDevice();
         userDevice.userId = userId;
         userDevice.deviceId = deviceId;
