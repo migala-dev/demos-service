@@ -17,9 +17,9 @@ export class User {
   @Column({ nullable: true })
   cognitoId: string;
 
-  @Column({ nullable: true })
-  createdAt: string;
+  @Column({ type: 'timestamptz' })
+  createdAt: Date;
 
-  @Column({ nullable: true })
-  updatedAt: string;
+  @Column({ type: 'timestamptz' })
+  updatedAt: Date;
 }
