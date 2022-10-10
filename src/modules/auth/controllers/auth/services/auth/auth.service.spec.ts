@@ -174,7 +174,7 @@ describe('AuthService', () => {
       expect(result instanceof UserDevice).toBeTruthy();
     });
 
-    it('should return an instance of UserDevice with the same properties passed to the mathod', async () => {
+    it('should return an instance of UserDevice with the same properties passed to the method', async () => {
       const expectedResult: UserDevice = new UserDevice();
       expectedResult.userId = userId;
       expectedResult.deviceId = deviceId;
