@@ -5,15 +5,15 @@ export class UserDevice {
   @PrimaryGeneratedColumn('uuid')
   userDeviceId: string;
 
-  @Column({ nullable: true})
+  @Column()
   userId: string;
 
-  @Column({ nullable: true})
+  @Column()
   deviceId: string;
 
-  @Column({ nullable: true})
-  createdAt: string;
+  @Column({ type: 'timestamptz', nullable: true })
+  createdAt: Date;
 
-  @Column({ nullable: true})
-  updatedAt: string;
+  @Column({ type: 'timestamptz', nullable: true })
+  updatedAt: Date;
 }
