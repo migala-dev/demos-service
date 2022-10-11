@@ -4,11 +4,17 @@ import { CognitoUser } from '../../models/cognito-user.model';
 import { UsersService } from '../../../../../../core/database/services/user.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
 import { LoginResponse } from '../../response/login.response';
+import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
+import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
 
 @Injectable()
 export class AuthService {
     
-    constructor(private readonly cognitoService: CognitoService, private readonly usersService: UsersService) {}
+    constructor(
+      private readonly cognitoService: CognitoService, 
+      private readonly usersService: UsersService,
+      private readonly userDevicesService: UserDevicesService,
+    ) {}
 
     public async login(phoneNumber: string): Promise<LoginResponse> {
         const cognitoUser: CognitoUser = await this.cognitoService.signIn(phoneNumber);
@@ -32,5 +38,11 @@ export class AuthService {
             }
             return this.usersService.updateCognitoId(user.userId, cognitoId).then(() => null);
         }
+    }
+
+    public async registerUserDevice(userId: string, deviceId: string): Promise<UserDevice> {
+      const userDevice: UserDevice = await this.userDevicesService.createOrUpdate(userId, deviceId);
+
+      return userDevice;
     }
 }

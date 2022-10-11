@@ -6,15 +6,19 @@ import { createSpyObj } from 'jest-createspyobj';
 import { CognitoUser } from '../../models/cognito-user.model';
 import { UsersService } from '../../../../../../core/database/services/user.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
+import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
+import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
   let cognitoSpyService: jest.Mocked<CognitoService>;
   let userSpyService: jest.Mocked<UsersService>;
+  let userDevicesSpyService: jest.Mocked<UserDevicesService>;
 
   beforeEach(async () => {
     cognitoSpyService = createSpyObj(CognitoService);
     userSpyService = createSpyObj(UsersService);
+    userDevicesSpyService = createSpyObj(UserDevicesService);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -26,12 +30,17 @@ describe('AuthService', () => {
           provide: UsersService,
           useValue: userSpyService,
         },
+        {
+          provide: UserDevicesService,
+          useValue: userDevicesSpyService,
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
 
     userSpyService.findOneByCognitoId.mockReturnValue((async () => ({}) as User)());
+    userDevicesSpyService.createOrUpdate.mockReturnValue((async () => ({}) as UserDevice)());
   });
 
   it('should be defined', () => {
@@ -120,5 +129,68 @@ describe('AuthService', () => {
     expect(cognitoSpyService.signUp).toHaveBeenCalled();
     expect(cognitoSpyService.signUp.mock.calls[0][0]).toBe(phoneNumber);
     expect(loginResponse.session).toBe(loginConstants.sessionMockToken);
+  });
+
+  describe('registerUserDevice method', () => {
+    let userId: string;
+    let deviceId: string;
+
+    beforeEach(() => {
+      userId = '';
+      deviceId = '';
+    });
+
+    it('should be defined', () => {
+      expect(service.registerUserDevice).toBeDefined();
+    });
+
+    it('should be a function', () => {
+      expect(typeof service.registerUserDevice).toBe('function');
+    });
+
+    it('should be called with a userId and a deviceId of type string', async () => {
+      const registerUserDeviceSpyMethod = jest.spyOn(service, 'registerUserDevice');
+
+      await service.registerUserDevice(userId, deviceId);
+
+      expect(registerUserDeviceSpyMethod).toHaveBeenCalledWith(userId, deviceId);
+    });
+
+    it('should be called UserDevicesService createOrUpdate method', async () => {
+      await service.registerUserDevice(userId, deviceId);
+
+      expect(userDevicesSpyService.createOrUpdate).toHaveBeenCalled();
+    });
+
+    it('should return a UserDevice instance', async () => {
+      userDevicesSpyService.createOrUpdate.mockReturnValue((async () => {
+        const userDevice: UserDevice = new UserDevice();
+
+        return userDevice;
+      })())
+
+      const result: UserDevice = await service.registerUserDevice(userId, deviceId);
+
+      expect(result instanceof UserDevice).toBeTruthy();
+    });
+
+    it('should return an instance of UserDevice with the same properties passed to the method', async () => {
+      const expectedResult: UserDevice = new UserDevice();
+      expectedResult.userId = userId;
+      expectedResult.deviceId = deviceId;
+      userDevicesSpyService.createOrUpdate.mockReturnValue((async () => {
+        const userDevice = new UserDevice();
+        userDevice.userId = userId;
+        userDevice.deviceId = deviceId;
+
+        return userDevice;
+      })())
+
+      const result: UserDevice = await service.registerUserDevice(userId, deviceId);
+
+      expect(result).toEqual(
+        expect.objectContaining(expectedResult)
+      );
+    });
   });
 });
