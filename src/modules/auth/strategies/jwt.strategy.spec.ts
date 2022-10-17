@@ -73,7 +73,7 @@ describe('JwtStrategy', () => {
       expect(result instanceof User).toBeTruthy();
     });
 
-    it('should called findOneByCognitoId method from usersService property', async () => {
+    it('should call findOneByCognitoId method from usersService', async () => {
       await strategy.validate(payload);
 
       expect(usersSpyService.findOneByCognitoId).toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe('JwtStrategy', () => {
       );
     });
 
-    it('should return same user with the same cognitoId passed to the method if user is found', async () => {
+    it('should return user with the same cognitoId passed to the method if user is found', async () => {
       const expectedCognitoId: string = 'Test';
       payload = { cognitoId: expectedCognitoId }
       const expectedUser: User = new User();
