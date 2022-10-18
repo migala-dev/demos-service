@@ -1,14 +1,14 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('user_devices')
 export class UserDevice {
   @PrimaryGeneratedColumn('uuid')
   userDeviceId: string;
 
-  @Column()
+  @Column('uuid')
   userId: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   deviceId: string;
 
   @Column({ type: 'timestamptz', nullable: true })
