@@ -5,7 +5,7 @@ import { LoginResponse } from './response/login.response';
 import { UserDeviceDto } from './dtos/user-device.dto';
 import { UserDevice } from '../../../../core/database/entities/user-device.entity';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
-import { Auth } from '../../../../decorators/auth.decorator';
+import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request.decorator';
 import { User } from '../../../../core/database/entities/user.entity';
 
 @Controller('auth')
@@ -24,13 +24,9 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     public registerUserDevice(
       @Body() { deviceId }: UserDeviceDto, 
-      @Auth() { userId }: User
+      @UserFromRequest('userId') userId: string
+      //@Request() req: any
     ): Promise<UserDevice> {
-      return new Promise((resolve, reject) => {
-        console.log(userId);
-        console.log(deviceId);
-        resolve(new UserDevice());
-      });
-      //return this.authService.registerUserDevice(userIdMock, deviceId);
+      return this.authService.registerUserDevice(userId, deviceId);
     }
 }
