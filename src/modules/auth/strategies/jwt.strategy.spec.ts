@@ -59,12 +59,6 @@ describe('JwtStrategy', () => {
       expect(validateSpyMethod).toHaveBeenCalledWith(payload);
     });
 
-    it('should return an object', async () => {
-      const result: object = await strategy.validate(payload);
-
-      expect(typeof result).toBe('object');
-    });
-
     it('should return a User instance', async () => {
       usersSpyService.findOneByCognitoId.mockReturnValue((async () => new User())())
 
@@ -79,19 +73,12 @@ describe('JwtStrategy', () => {
       expect(usersSpyService.findOneByCognitoId).toHaveBeenCalled();
     });
 
-    it('should throw if no user is found', async () => {
-      usersSpyService.findOneByCognitoId.mockReturnValue((async () => null)())
-
-      const execute = async () => await strategy.validate(payload);
-
-      await expect(execute).rejects.toThrow();
-    });
-
     it('should throw UnauthorizedException error if no user is found', async () => {
       usersSpyService.findOneByCognitoId.mockReturnValue((async () => null)())
 
       const execute = async () => await strategy.validate(payload);
 
+      await expect(execute).rejects.toThrow();
       await expect(execute).rejects.toThrowError(UnauthorizedException);
     });
 
