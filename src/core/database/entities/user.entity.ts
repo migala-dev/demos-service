@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeUpdate } from 'typeorm';
+import { DateColumns } from './utils/date-columns.helper';
 
 @Entity('users')
-export class User {
+export class User extends DateColumns {
   @PrimaryGeneratedColumn('uuid')
   userId: string;
 
@@ -17,9 +18,4 @@ export class User {
   @Column({ nullable: true })
   cognitoId: string;
 
-  @Column({ type: 'timestamptz' })
-  createdAt: Date;
-
-  @Column({ type: 'timestamptz' })
-  updatedAt: Date;
 }
