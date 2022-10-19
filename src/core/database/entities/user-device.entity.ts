@@ -1,7 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { DateColumns } from './utils/date-columns.helper';
 
 @Entity('user_devices')
-export class UserDevice {
+export class UserDevice extends DateColumns {
   @PrimaryGeneratedColumn('uuid')
   userDeviceId: string;
 
@@ -10,10 +11,4 @@ export class UserDevice {
 
   @Column({ type: 'varchar', length: 255 })
   deviceId: string;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  createdAt: Date;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  updatedAt: Date;
 }
