@@ -51,14 +51,6 @@ describe('UserFromRequest decorator', () => {
     expect(switchToHttpSpyMethod).toHaveBeenCalled();
   });
 
-  it('should be call getRequest method from the object return by switchToHttp method', () => {
-    const getRequestSpyMethod: jest.SpyInstance = jest.spyOn(mockDecoratorData.switchToHttp(), 'getRequest');
-
-    factory(null, mockDecoratorData);
-
-    expect(getRequestSpyMethod).toHaveBeenCalled();
-  });
-
   it('should throw an InternalServerErrorException if user is undefined', () => {
     req = {};
     mockDecoratorData = new ExecutionContextHost([req, res]);
