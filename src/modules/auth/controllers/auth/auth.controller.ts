@@ -24,8 +24,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     public registerUserDevice(
       @Body() { deviceId }: UserDeviceDto, 
-      @UserFromRequest('userId') userId: string
-      //@Request() req: any
+      @UserFromRequest() { userId }: User,
     ): Promise<UserDevice> {
       return this.authService.registerUserDevice(userId, deviceId);
     }
