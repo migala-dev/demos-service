@@ -50,13 +50,13 @@ describe('JwtStrategy', () => {
       expect(isAsync).toBeTruthy();
     });
 
-    it('should be called with a payload argument as parameter', () => {
-      const validateSpyMethod: jest.SpyInstance = jest.spyOn(strategy, 'validate');
+    it('should be called with a payload as argument', () => {
+      jest.spyOn(strategy, 'validate');
 
       strategy.validate(payload);
 
-      expect(validateSpyMethod).toHaveBeenCalled();
-      expect(validateSpyMethod).toHaveBeenCalledWith(payload);
+      expect(strategy.validate).toHaveBeenCalled();
+      expect(strategy.validate).toHaveBeenCalledWith(payload);
     });
 
     it('should return a User instance', async () => {
