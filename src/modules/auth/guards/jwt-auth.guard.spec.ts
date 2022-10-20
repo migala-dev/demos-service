@@ -2,11 +2,11 @@ import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { TestingModule, Test } from '@nestjs/testing';
+import { AuthGuard } from '@nestjs/passport';
 
 import { createSpyObj } from 'jest-createspyobj';
 
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { AuthGuard } from '@nestjs/passport';
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
