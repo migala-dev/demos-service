@@ -1,25 +1,25 @@
-import { Body, Request, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './services/auth/auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { LoginResponse } from './response/login.response';
 import { UserDeviceDto } from './dtos/user-device.dto';
 import { UserDevice } from '../../../../core/database/entities/user-device.entity';
-import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request.decorator';
 import { User } from '../../../../core/database/entities/user.entity';
+import { Public } from '../../../../core/decorators/auth/public.decorator';
 
 @Controller('auth')
 export class AuthController {
 
     constructor(private readonly authService: AuthService) {}
 
+    @Public()
     @Post('login')
     @HttpCode(HttpStatus.OK)
     public login(@Body() { phoneNumber }: LoginDto): Promise<LoginResponse> {
         return this.authService.login(phoneNumber);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post('user-device')
     @HttpCode(HttpStatus.OK)
     public registerUserDevice(
