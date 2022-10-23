@@ -8,6 +8,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import jwkToPem, { JWK } from 'jwk-to-pem';
 import jwks from '../../../jwks.json';
+import { UserController } from './controllers/user/user.controller';
+import { FileService } from './controllers/user/services/file/file.service';
+import { UserService } from './controllers/user/services/user/user.service';
 
 @Module({
   imports: [
@@ -17,11 +20,13 @@ import jwks from '../../../jwks.json';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, UserController],
   providers: [
     CognitoService,
     AuthService,
     JwtStrategy,
+    FileService,
+    UserService,
   ],
 })
 export class AuthModule {}
