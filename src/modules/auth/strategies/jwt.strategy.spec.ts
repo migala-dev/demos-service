@@ -26,10 +26,10 @@ describe('JwtStrategy', () => {
   });
 
   describe('validate method', () => {
-    let payload: { cognitoId: string };
+    let payload: { username: string };
 
     beforeEach(() => {
-      payload = { cognitoId: '' };
+      payload = { username: 'aCognitoId' };
 
       usersSpyService.findOneByCognitoId.mockReturnValue((async () => ({}) as User)())
     });
@@ -67,10 +67,11 @@ describe('JwtStrategy', () => {
       expect(result instanceof User).toBeTruthy();
     });
 
-    it('should call findOneByCognitoId method from usersService', async () => {
+    it('should call findOneByCognitoId method from usersService with the payload.usename as argument', async () => {
       await strategy.validate(payload);
 
-      expect(usersSpyService.findOneByCognitoId).toHaveBeenCalled();
+      expect(usersSpyService.findOneByCognitoId).toHaveBeenCalledTimes(1);
+      expect(usersSpyService.findOneByCognitoId).toHaveBeenCalledWith(payload.username);
     });
 
     it('should throw UnauthorizedException error if no user is found', async () => {
@@ -82,7 +83,7 @@ describe('JwtStrategy', () => {
       await expect(execute).rejects.toThrowError(UnauthorizedException);
     });
 
-    it('should return same user returned by findOneByCognitoId method if user is found', async () => {
+    it('should return the same user obtained from findOneByCognitoId method if user is found', async () => {
       const expectedCognitoId: string = '';
       const expectedUser: User = new User();
       expectedUser.cognitoId = expectedCognitoId;
@@ -95,9 +96,9 @@ describe('JwtStrategy', () => {
       );
     });
 
-    it('should return user with the same cognitoId passed to the method if user is found', async () => {
+    it('should return a user with the same cognitoId passed as argument if user is found', async () => {
       const expectedCognitoId: string = 'Test';
-      payload = { cognitoId: expectedCognitoId }
+      payload = { username: expectedCognitoId }
       const expectedUser: User = new User();
       expectedUser.cognitoId = expectedCognitoId;
       usersSpyService.findOneByCognitoId.mockReturnValue((async () => expectedUser)())
