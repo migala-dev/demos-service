@@ -13,7 +13,7 @@ describe('JwtAuthGuard', () => {
   let reflectorSpy: jest.Mocked<Reflector>;
   let context: ExecutionContext;
 
-  beforeEach(async ()  => {
+  beforeEach(async () => {
     reflectorSpy = createSpyObj(Reflector);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -31,7 +31,7 @@ describe('JwtAuthGuard', () => {
     expect(guard).toBeDefined();
   });
 
-  it('should be extends from AuthGuard(\'jwt\') class', () => {
+  it('should be extends from AuthGuard("jwt") class', () => {
     expect(guard instanceof AuthGuard('jwt'));
   });
 
@@ -56,7 +56,7 @@ describe('JwtAuthGuard', () => {
     it('should call getAllAndOverride method from reflector', () => {
       guard.canActivate(context);
 
-      expect(reflectorSpy.getAllAndOverride).toHaveBeenCalled();
+      expect(reflectorSpy.getAllAndOverride).toHaveBeenCalledTimes(1);
     });
 
     it('should return true if the value returned by getAllAndOverride method is true', () => {
