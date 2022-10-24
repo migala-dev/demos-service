@@ -57,14 +57,11 @@ describe('AuthController', () => {
     });
 
     it('should be called with a UserDeviceDto and a User instance', () => {
-      const registerUserDeviceSpyMethod = jest.spyOn(
-        controller,
-        'registerUserDevice',
-      );
+      jest.spyOn(controller, 'registerUserDevice');
 
       controller.registerUserDevice(userDeviceMock, userMock);
 
-      expect(registerUserDeviceSpyMethod).toHaveBeenCalledWith(
+      expect(controller.registerUserDevice).toHaveBeenCalledWith(
         userDeviceMock,
         userMock,
       );

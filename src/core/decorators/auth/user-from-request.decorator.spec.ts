@@ -30,12 +30,11 @@ describe('UserFromRequest decorator', () => {
   it('should be called with a data of type string and a ctx of type ExecutionContext', () => {
     const data: string = '';
     const objectToSpy = { factory };
-    const factorySpy: jest.SpyInstance = jest.spyOn(objectToSpy, 'factory');
 
     objectToSpy.factory(data, mockDecoratorData);
 
-    expect(factorySpy).toHaveBeenCalled();
-    expect(factorySpy).toHaveBeenCalledWith(data, mockDecoratorData);
+    expect(objectToSpy.factory).toHaveBeenCalledTimes(1);
+    expect(objectToSpy.factory).toHaveBeenCalledWith(data, mockDecoratorData);
   });
 
   it('should return a User instance if no argument is passed', () => {
@@ -45,14 +44,11 @@ describe('UserFromRequest decorator', () => {
   });
 
   it('should be call switchToHttp method from ctx', () => {
-    const switchToHttpSpyMethod: jest.SpyInstance = jest.spyOn(
-      mockDecoratorData,
-      'switchToHttp',
-    );
+    jest.spyOn(mockDecoratorData, 'switchToHttp');
 
     factory(null, mockDecoratorData);
 
-    expect(switchToHttpSpyMethod).toHaveBeenCalledTimes(1);
+    expect(mockDecoratorData.switchToHttp).toHaveBeenCalledTimes(1);
   });
 
   it('should be call getRequest method from the object returned by the switchToHttp method', () => {
