@@ -15,7 +15,10 @@ describe('JwtStrategy', () => {
     usersSpyService = createSpyObj(UsersService);
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [JwtStrategy, { provide: UsersService, useValue: usersSpyService }],
+      providers: [
+        JwtStrategy,
+        { provide: UsersService, useValue: usersSpyService },
+      ],
     }).compile();
 
     strategy = module.get<JwtStrategy>(JwtStrategy);
@@ -31,7 +34,9 @@ describe('JwtStrategy', () => {
     beforeEach(() => {
       payload = { username: 'aCognitoId' };
 
-      usersSpyService.findOneByCognitoId.mockReturnValue((async () => ({}) as User)())
+      usersSpyService.findOneByCognitoId.mockReturnValue(
+        (async () => ({} as User))(),
+      );
     });
 
     it('should be define', () => {
@@ -60,7 +65,9 @@ describe('JwtStrategy', () => {
     });
 
     it('should return a User instance', async () => {
-      usersSpyService.findOneByCognitoId.mockReturnValue((async () => new User())())
+      usersSpyService.findOneByCognitoId.mockReturnValue(
+        (async () => new User())(),
+      );
 
       const result: User = await strategy.validate(payload);
 
@@ -71,11 +78,13 @@ describe('JwtStrategy', () => {
       await strategy.validate(payload);
 
       expect(usersSpyService.findOneByCognitoId).toHaveBeenCalledTimes(1);
-      expect(usersSpyService.findOneByCognitoId).toHaveBeenCalledWith(payload.username);
+      expect(usersSpyService.findOneByCognitoId).toHaveBeenCalledWith(
+        payload.username,
+      );
     });
 
     it('should throw UnauthorizedException error if no user is found', async () => {
-      usersSpyService.findOneByCognitoId.mockReturnValue((async () => null)())
+      usersSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
 
       const execute = async () => await strategy.validate(payload);
 
@@ -87,27 +96,27 @@ describe('JwtStrategy', () => {
       const expectedCognitoId: string = '';
       const expectedUser: User = new User();
       expectedUser.cognitoId = expectedCognitoId;
-      usersSpyService.findOneByCognitoId.mockReturnValue((async () => expectedUser)())
+      usersSpyService.findOneByCognitoId.mockReturnValue(
+        (async () => expectedUser)(),
+      );
 
       const result: User = await strategy.validate(payload);
 
-      expect(result).toEqual(
-        expect.objectContaining(expectedUser)
-      );
+      expect(result).toEqual(expect.objectContaining(expectedUser));
     });
 
     it('should return a user with the same cognitoId passed as argument if user is found', async () => {
       const expectedCognitoId: string = 'Test';
-      payload = { username: expectedCognitoId }
+      payload = { username: expectedCognitoId };
       const expectedUser: User = new User();
       expectedUser.cognitoId = expectedCognitoId;
-      usersSpyService.findOneByCognitoId.mockReturnValue((async () => expectedUser)())
+      usersSpyService.findOneByCognitoId.mockReturnValue(
+        (async () => expectedUser)(),
+      );
 
       const result: User = await strategy.validate(payload);
 
-      expect(result).toEqual(
-        expect.objectContaining(expectedUser)
-      );
+      expect(result).toEqual(expect.objectContaining(expectedUser));
     });
   });
 });
