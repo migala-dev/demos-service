@@ -4,6 +4,7 @@ import { InternalServerErrorException, ExecutionContext } from '@nestjs/common';
 import { getParamDecoratorFactory } from '../../../../test/utils/getParamDecoratorFactory';
 import { UserFromRequest } from './user-from-request.decorator';
 import { User } from '../../database/entities/user.entity';
+import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 
 describe('UserFromRequest decorator', () => {
   const res: object = {};
@@ -44,11 +45,29 @@ describe('UserFromRequest decorator', () => {
   });
 
   it('should be call switchToHttp method from ctx', () => {
-    const switchToHttpSpyMethod: jest.SpyInstance = jest.spyOn(mockDecoratorData, 'switchToHttp');
+    const switchToHttpSpyMethod: jest.SpyInstance = jest.spyOn(
+      mockDecoratorData,
+      'switchToHttp',
+    );
 
     factory(null, mockDecoratorData);
 
     expect(switchToHttpSpyMethod).toHaveBeenCalled();
+  });
+
+  it('should be call getRequest method from the object returned by the switchToHttp method', () => {
+    const httpArgumentsHostMock: HttpArgumentsHost = {
+      getRequest: jest.fn().mockReturnValue(req),
+      getResponse: null,
+      getNext: null,
+    };
+    jest
+      .spyOn(mockDecoratorData, 'switchToHttp')
+      .mockReturnValue(httpArgumentsHostMock);
+
+    factory(null, mockDecoratorData);
+
+    expect(httpArgumentsHostMock.getRequest).toHaveBeenCalledTimes(1);
   });
 
   it('should throw an InternalServerErrorException if user is undefined', () => {
@@ -73,16 +92,14 @@ describe('UserFromRequest decorator', () => {
   it('should return same user instance returned by the getRequest method', () => {
     const result: User = factory(null, mockDecoratorData);
 
-    expect(result).toStrictEqual(
-      expect.objectContaining(mockUser)
-    );
+    expect(result).toStrictEqual(expect.objectContaining(mockUser));
   });
 
   it('should return the property specified as argument', () => {
     const expectedPropertyName: string = 'userId';
     factory = getParamDecoratorFactory(true)(UserFromRequest);
 
-    const result: string = factory(expectedPropertyName, mockDecoratorData)
+    const result: string = factory(expectedPropertyName, mockDecoratorData);
 
     expect(result).toBe(mockUser.userId);
   });
@@ -93,7 +110,7 @@ describe('UserFromRequest decorator', () => {
     mockDecoratorData = new ExecutionContextHost([req, res]);
     factory = getParamDecoratorFactory(true)(UserFromRequest);
 
-    const result: string = factory(expectedPropertyName, mockDecoratorData)
+    const result: string = factory(expectedPropertyName, mockDecoratorData);
 
     expect(result).toBeUndefined();
   });
