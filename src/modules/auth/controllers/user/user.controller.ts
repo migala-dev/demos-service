@@ -1,7 +1,7 @@
 import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request.decorator';
+import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request/user-from-request.decorator';
 import { User } from '../../../../core/database/entities/user.entity';
 import { UserService } from './services/user/user.service';
 
