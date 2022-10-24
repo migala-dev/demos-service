@@ -6,6 +6,7 @@ import { S3 } from 'aws-sdk';
 
 import { FileService } from './file.service';
 import { S3InstanceMock } from '../../../../../../../test/mocks/aws-sdk/S3Instance';
+import { UploadResponse } from './response/upload.response';
 
 jest.mock('aws-sdk', () => ({ S3: jest.fn(() => S3InstanceMock) }));
 
@@ -88,18 +89,15 @@ describe('FileService', () => {
       );
     });
 
-    it('should return an object that implements S3.ManagedUpload.SendData', async () => {
-      const result: S3.ManagedUpload.SendData = await service.uploadPublicFile(
+    it('should return an object that implements UploadResponse', async () => {
+      const result: UploadResponse = await service.uploadPublicFile(
         cognitoIdMock,
         dataBufferMock,
         filenameMock,
         fieldnameMock,
       );
 
-      expect('Location' in result).toBeTruthy();
-      expect('ETag' in result).toBeTruthy();
-      expect('Bucket' in result).toBeTruthy();
-      expect('Key' in result).toBeTruthy();
+      expect('imageKey' in result).toBeTruthy();
     });
 
     it('should call upload method from S3 instance with ACL, Body, Bucket, Key, and Metadata as arguments', async () => {
@@ -137,21 +135,18 @@ describe('FileService', () => {
       const expectedLocation: string = 'aLocation';
       const expectedETag: string = 'anETag';
       const expectedBucket: string = 'aBucket';
-      const expectedKey: string = 'aKey';
-      const expectedResult: S3.ManagedUpload.SendData = {
-        Location: expectedLocation,
-        ETag: expectedETag,
-        Bucket: expectedBucket,
-        Key: expectedKey,
+      const expectedImageKey: string = 'aKey';
+      const expectedResult: UploadResponse = {
+        imageKey: expectedImageKey
       };
       S3InstanceMock.promise.mockReturnValue({
         Location: expectedLocation,
         ETag: expectedETag,
         Bucket: expectedBucket,
-        Key: expectedKey,
+        Key: expectedImageKey,
       } as S3.ManagedUpload.SendData);
 
-      const result: S3.ManagedUpload.SendData = await service.uploadPublicFile(
+      const result: UploadResponse = await service.uploadPublicFile(
         cognitoIdMock,
         dataBufferMock,
         filenameMock,

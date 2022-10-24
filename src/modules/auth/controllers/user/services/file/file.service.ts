@@ -3,36 +3,36 @@ import { ConfigService } from '@nestjs/config';
 
 import { AWSError, S3 } from 'aws-sdk';
 
+import { UploadResponse } from './response/upload.response';
+
 @Injectable()
 export class FileService {
-  private s3: S3;
+  private s3: S3 = new S3();
 
-  constructor(private readonly configService: ConfigService) {
-    this.s3 = new S3();
-  }
+  constructor(private readonly configService: ConfigService) {}
 
   public async uploadPublicFile(
     cognitoId: string,
     dataBuffer: Buffer,
     filename: string,
     fieldname: string,
-  ): Promise<S3.ManagedUpload.SendData> {
-    const key: string = this.generateKey(cognitoId, filename);
+  ): Promise<UploadResponse> {
+    const imageKey: string = this.generateImageKey(cognitoId, filename);
 
     const uploadResult: S3.ManagedUpload.SendData = await this.s3
       .upload({
         ACL: 'public-read',
         Body: dataBuffer,
         Bucket: this.configService.get('AWS_S3_BUCKET'),
-        Key: key,
+        Key: imageKey,
         Metadata: { fieldName: fieldname },
       })
       .promise();
 
-    return uploadResult;
+    return { imageKey: uploadResult.Key };
   }
 
-  private generateKey(cognitoId: string, filename: string): string {
+  private generateImageKey(cognitoId: string, filename: string): string {
     const fileExtension: string = this.getFileExtension(filename);
     const randomNumber: string = new Date().getTime().toString().slice(9);
 

@@ -1,10 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { S3 } from 'aws-sdk';
-
 import { FileService } from '../file/file.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
 import { UsersService } from '../../../../../../core/database/services/user.service';
+import { UploadResponse } from '../file/response/upload.response';
 
 @Injectable()
 export class UserService {
@@ -18,18 +17,18 @@ export class UserService {
 
     const oldImageKey: string = user.profilePictureKey;
 
-    const uploadResult: S3.ManagedUpload.SendData = await this.fileService.uploadPublicFile(
+    const uploadResponse: UploadResponse = await this.fileService.uploadPublicFile(
       user.cognitoId,
       file.buffer,
       file.originalname,
       file.fieldname,
     );
 
-    user.profilePictureKey = uploadResult.Key;
+    user.profilePictureKey = uploadResponse.imageKey;
 
     this.fileService.deletePublicFile(oldImageKey);
 
-    await this.usersService.updatePictureKey(user.userId, uploadResult.Key);
+    await this.usersService.updatePictureKey(user.userId, uploadResponse.imageKey);
 
     return user;
   }

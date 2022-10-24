@@ -9,6 +9,7 @@ import { UserService } from './user.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
 import { UsersService } from '../../../../../../core/database/services/user.service';
 import { FileService } from '../file/file.service';
+import { UploadResponse } from '../file/response/upload.response';
 
 describe('UserService', () => {
   let service: UserService;
@@ -35,7 +36,7 @@ describe('UserService', () => {
 
     service = module.get<UserService>(UserService);
 
-    fileSpyService.uploadPublicFile.mockReturnValue((async () => ({}) as S3.ManagedUpload.SendData)());
+    fileSpyService.uploadPublicFile.mockReturnValue((async () => ({}) as UploadResponse)());
     usersSpyService.updatePictureKey.mockReturnValue((async () => ({}) as UpdateResult)())
   });
 
@@ -127,32 +128,32 @@ describe('UserService', () => {
     });
 
     it('should return the same user instance passed as argument but, with the profilePictureKey returned from uploadPublicFile Method', async () => {
-      const expectedNewKey: string = 'newKey';
+      const expectedImageKey: string = 'newKey';
       const expectedUser: User = new User();
       expectedUser.userId = userMock.userId;
       expectedUser.name = userMock.name;
       expectedUser.phoneNumber = userMock.phoneNumber;
-      expectedUser.profilePictureKey = expectedNewKey;
+      expectedUser.profilePictureKey = expectedImageKey;
       expectedUser.cognitoId = userMock.cognitoId;
       expectedUser.createdAt = userMock.createdAt;
       expectedUser.updatedAt = userMock.updatedAt;
       fileSpyService.uploadPublicFile.mockReturnValue((async () => {
-        return { Key: expectedNewKey } as S3.ManagedUpload.SendData
+        return { imageKey: expectedImageKey } as UploadResponse;
       })());
 
       const result: User = await service.uploadAvatarImage(userMock, fileMock);
 
-      expect(result.profilePictureKey).toBe(expectedNewKey);
+      expect(result.profilePictureKey).toBe(expectedImageKey);
       expect(result).toStrictEqual(
         expect.objectContaining(expectedUser)
       );
     });
 
     it('should call deletePublicFile method from the fileService with the old profilePictureKey', async () => {
-      const oldProfilePictureKey: string = 'oldKey';
+      const oldProfilePictureKey: string = 'oldTestImageKey';
       userMock.profilePictureKey = oldProfilePictureKey;
       fileSpyService.uploadPublicFile.mockReturnValue((async () => {
-        return { Key: 'newKey' } as S3.ManagedUpload.SendData
+        return { imageKey: 'newTestImageKey' } as UploadResponse;
       })());
 
       await service.uploadAvatarImage(userMock, fileMock);
@@ -162,10 +163,10 @@ describe('UserService', () => {
     });
 
     it('should call updatePictureKey method from usersService with the userId and the new profilePictureKey', async () => {
-      const newProfilePictureKey: string = 'newKey';
+      const newProfilePictureKey: string = 'newTestImageKey';
       userMock.userId = 'aUserId';
       fileSpyService.uploadPublicFile.mockReturnValue((async () => {
-        return { Key: newProfilePictureKey } as S3.ManagedUpload.SendData
+        return { imageKey: newProfilePictureKey } as UploadResponse;
       })());
 
       await service.uploadAvatarImage(userMock, fileMock);

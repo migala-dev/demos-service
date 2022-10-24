@@ -7,13 +7,13 @@ import {
 import { User } from '../../../database/entities/user.entity';
 
 export const UserFromRequest = createParamDecorator(
-  (data: string, ctx: ExecutionContext): User | string | Date => {
-    const request = ctx.switchToHttp().getRequest();
+  (propertyName: string, context: ExecutionContext): User | string | Date => {
+    const request = context.switchToHttp().getRequest();
 
     const { user }: { user: User } = request;
     if (!user)
       throw new InternalServerErrorException('User not found (request)');
 
-    return data ? user?.[data] : user;
+    return propertyName ? user?.[propertyName] : user;
   },
 );

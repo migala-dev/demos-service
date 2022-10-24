@@ -11,10 +11,10 @@ describe('UserFromRequest decorator', () => {
   let factory;
   let mockUser: User;
   let req: object = { user: mockUser };
-  let mockDecoratorData: ExecutionContext;
+  let contextMock: ExecutionContext;
 
   beforeEach(async () => {
-    factory = getParamDecoratorFactory(false)(UserFromRequest);
+    factory = getParamDecoratorFactory(UserFromRequest);
     mockUser = new User();
     mockUser.userId = '';
     mockUser.name = '';
@@ -24,32 +24,32 @@ describe('UserFromRequest decorator', () => {
     mockUser.createdAt = new Date();
     mockUser.updatedAt = new Date();
     req = { user: mockUser };
-    mockDecoratorData = new ExecutionContextHost([req, res]);
+    contextMock = new ExecutionContextHost([req, res]);
   });
 
-  it('should be called with a data of type string and a ctx of type ExecutionContext', () => {
-    const data: string = '';
+  it('should be called with a propertyName of type string and a context of type ExecutionContext', () => {
+    const propertyName: string = '';
     const objectToSpy = { factory };
     jest.spyOn(objectToSpy, 'factory');
 
-    objectToSpy.factory(data, mockDecoratorData);
+    objectToSpy.factory(propertyName, contextMock);
 
     expect(objectToSpy.factory).toHaveBeenCalled();
-    expect(objectToSpy.factory).toHaveBeenCalledWith(data, mockDecoratorData);
+    expect(objectToSpy.factory).toHaveBeenCalledWith(propertyName, contextMock);
   });
 
   it('should return a User instance if no argument is passed', () => {
-    const result: User = factory(null, mockDecoratorData);
+    const result: User = factory(null, contextMock);
 
     expect(result instanceof User).toBeTruthy();
   });
 
   it('should be call switchToHttp method from ctx', () => {
-    jest.spyOn(mockDecoratorData, 'switchToHttp');
+    jest.spyOn(contextMock, 'switchToHttp');
 
-    factory(null, mockDecoratorData);
+    factory(null, contextMock);
 
-    expect(mockDecoratorData.switchToHttp).toHaveBeenCalledTimes(1);
+    expect(contextMock.switchToHttp).toHaveBeenCalledTimes(1);
   });
 
   it('should be call getRequest method from the object returned by the switchToHttp method', () => {
@@ -59,55 +59,55 @@ describe('UserFromRequest decorator', () => {
       getNext: null,
     };
     jest
-      .spyOn(mockDecoratorData, 'switchToHttp')
+      .spyOn(contextMock, 'switchToHttp')
       .mockReturnValue(httpArgumentsHostMock);
 
-    factory(null, mockDecoratorData);
+    factory(null, contextMock);
 
     expect(httpArgumentsHostMock.getRequest).toHaveBeenCalledTimes(1);
   });
 
   it('should throw an InternalServerErrorException if user is undefined', () => {
     req = {};
-    mockDecoratorData = new ExecutionContextHost([req, res]);
+    contextMock = new ExecutionContextHost([req, res]);
 
-    const execute = () => factory(null, mockDecoratorData);
+    const execute = () => factory(null, contextMock);
 
     expect(execute).toThrowError(InternalServerErrorException);
   });
 
   it('should throw an expected error message if user is undefined', () => {
     req = {};
-    mockDecoratorData = new ExecutionContextHost([req, res]);
+    contextMock = new ExecutionContextHost([req, res]);
     const expectedErrorMessage: string = 'User not found (request)';
 
-    const execute = () => factory(null, mockDecoratorData);
+    const execute = () => factory(null, contextMock);
 
     expect(execute).toThrow(expectedErrorMessage);
   });
 
   it('should return same user instance returned by the getRequest method', () => {
-    const result: User = factory(null, mockDecoratorData);
+    const result: User = factory(null, contextMock);
 
     expect(result).toStrictEqual(expect.objectContaining(mockUser));
   });
 
   it('should return the property specified as argument', () => {
     const expectedPropertyName: string = 'userId';
-    factory = getParamDecoratorFactory(true)(UserFromRequest);
+    factory = getParamDecoratorFactory(UserFromRequest);
 
-    const result: string = factory(expectedPropertyName, mockDecoratorData);
+    const result: string = factory(expectedPropertyName, contextMock);
 
     expect(result).toBe(mockUser.userId);
   });
 
-  it('should return undefined if the property specified as argument is not a User property', () => {
+  it('should return undefined if the property specified as argument is not a valid User property', () => {
     const expectedPropertyName: string = 'somePropertyName';
     req = { user: mockUser };
-    mockDecoratorData = new ExecutionContextHost([req, res]);
-    factory = getParamDecoratorFactory(true)(UserFromRequest);
+    contextMock = new ExecutionContextHost([req, res]);
+    factory = getParamDecoratorFactory(UserFromRequest);
 
-    const result: string = factory(expectedPropertyName, mockDecoratorData);
+    const result: string = factory(expectedPropertyName, contextMock);
 
     expect(result).toBeUndefined();
   });
