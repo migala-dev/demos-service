@@ -4,9 +4,9 @@ import { LoginDto } from './dtos/login.dto';
 import { LoginResponse } from './response/login.response';
 import { UserDeviceDto } from './dtos/user-device.dto';
 import { UserDevice } from '../../../../core/database/entities/user-device.entity';
-import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request.decorator';
+import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request/user-from-request.decorator';
 import { User } from '../../../../core/database/entities/user.entity';
-import { Public } from '../../../../core/decorators/auth/public.decorator';
+import { Public } from '../../../../core/decorators/auth/public/public.decorator';
 
 @Controller('auth')
 export class AuthController {

@@ -1,9 +1,9 @@
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { InternalServerErrorException, ExecutionContext } from '@nestjs/common';
 
-import { getParamDecoratorFactory } from '../../../../test/utils/getParamDecoratorFactory';
+import { getParamDecoratorFactory } from '../../../../../test/utils/getParamDecoratorFactory';
 import { UserFromRequest } from './user-from-request.decorator';
-import { User } from '../../database/entities/user.entity';
+import { User } from '../../../database/entities/user.entity';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 
 describe('UserFromRequest decorator', () => {
