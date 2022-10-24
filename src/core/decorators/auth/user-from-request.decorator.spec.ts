@@ -30,10 +30,11 @@ describe('UserFromRequest decorator', () => {
   it('should be called with a data of type string and a ctx of type ExecutionContext', () => {
     const data: string = '';
     const objectToSpy = { factory };
+    jest.spyOn(objectToSpy, 'factory');
 
     objectToSpy.factory(data, mockDecoratorData);
 
-    expect(objectToSpy.factory).toHaveBeenCalledTimes(1);
+    expect(objectToSpy.factory).toHaveBeenCalled();
     expect(objectToSpy.factory).toHaveBeenCalledWith(data, mockDecoratorData);
   });
 
