@@ -52,7 +52,7 @@ describe('UserFromRequest decorator', () => {
 
     factory(null, mockDecoratorData);
 
-    expect(switchToHttpSpyMethod).toHaveBeenCalled();
+    expect(switchToHttpSpyMethod).toHaveBeenCalledTimes(1);
   });
 
   it('should be call getRequest method from the object returned by the switchToHttp method', () => {
