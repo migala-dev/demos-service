@@ -37,10 +37,6 @@ describe('FileService', () => {
     jest.restoreAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   describe('uploadPublicFile method', () => {
     let cognitoIdMock: string;
     let dataBufferMock: Buffer;
@@ -48,71 +44,27 @@ describe('FileService', () => {
     let fieldnameMock: string;
 
     beforeEach(() => {
-      cognitoIdMock = '';
+      cognitoIdMock = 'aCognitoId';
       dataBufferMock = {} as Buffer;
-      filenameMock = '';
-      fieldnameMock = '';
+      filenameMock = 'aFile.test';
+      fieldnameMock = 'file';
     });
 
-    it('should be defined', () => {
-      expect(service.uploadPublicFile).toBeDefined();
-    });
-
-    it('should be a function', () => {
-      expect(typeof service.uploadPublicFile).toBe('function');
-    });
-
-    it('should be an async function', () => {
-      const string: string = service.uploadPublicFile.toString();
-
-      const isAsync: boolean = string.includes('async');
-
-      expect(isAsync).toBeTruthy();
-    });
-
-    it('should be called with 3 strings a cognitoId, a filename, a fieldname, and dataBuffer of type Buffer', async () => {
-      jest.spyOn(service, 'uploadPublicFile');
-
-      await service.uploadPublicFile(
-        cognitoIdMock,
-        dataBufferMock,
-        filenameMock,
-        fieldnameMock,
-      );
-
-      expect(service.uploadPublicFile).toHaveBeenCalled();
-      expect(service.uploadPublicFile).toHaveBeenCalledWith(
-        cognitoIdMock,
-        dataBufferMock,
-        filenameMock,
-        fieldnameMock,
-      );
-    });
-
-    it('should return an object that implements UploadResponse', async () => {
-      const result: UploadResponse = await service.uploadPublicFile(
-        cognitoIdMock,
-        dataBufferMock,
-        filenameMock,
-        fieldnameMock,
-      );
-
-      expect('imageKey' in result).toBeTruthy();
-    });
-
-    it('should call upload method from S3 instance with ACL, Body, Bucket, Key, and Metadata as arguments', async () => {
+    it('should upload file to aws bucket with a specified params', async () => {
       jest.spyOn(String.prototype, 'slice').mockReturnValue('1234');
-      const expectedACL: string = 'public-read';
-      const expectedBody: Buffer = {} as Buffer;
-      const expectedBucket: string = 'aTestBucket';
-      const expectedKey: string = 'avatars/.1234.';
-      const expectedFieldName: string = 'aTestFieldName';
-      const expectedMetadata: { fieldName: string } = {
-        fieldName: expectedFieldName,
+      const bucketMock = 'aTestBucket';
+      configSpyService.get.mockReturnValue(bucketMock);
+      const expectedBuffer = dataBufferMock;
+      const expectedKey = 'avatars/aCognitoId.1234.test';
+      const expectedFieldName = fieldnameMock;
+      const expectedBucket = bucketMock;
+      const expectedParams: S3.PutObjectRequest = {
+        ACL: 'public-read',
+        Body: expectedBuffer,
+        Bucket: expectedBucket,
+        Key: expectedKey,
+        Metadata: { fieldName: expectedFieldName },
       };
-      dataBufferMock = expectedBody;
-      fieldnameMock = expectedFieldName;
-      configSpyService.get.mockReturnValue(expectedBucket);
 
       await service.uploadPublicFile(
         cognitoIdMock,
@@ -122,27 +74,15 @@ describe('FileService', () => {
       );
 
       expect(S3InstanceMock.upload).toHaveBeenCalledTimes(1);
-      expect(S3InstanceMock.upload).toHaveBeenCalledWith({
-        ACL: expectedACL,
-        Body: expectedBody,
-        Bucket: expectedBucket,
-        Key: expectedKey,
-        Metadata: expectedMetadata,
-      });
+      expect(S3InstanceMock.upload).toHaveBeenCalledWith(expectedParams);
     });
 
-    it('should return the same object returned from upload method', async () => {
-      const expectedLocation: string = 'aLocation';
-      const expectedETag: string = 'anETag';
-      const expectedBucket: string = 'aBucket';
-      const expectedImageKey: string = 'aKey';
+    it('should return an object with the uploaded file key', async () => {
+      const expectedImageKey = 'aKey';
       const expectedResult: UploadResponse = {
-        imageKey: expectedImageKey
+        imageKey: expectedImageKey,
       };
       S3InstanceMock.promise.mockReturnValue({
-        Location: expectedLocation,
-        ETag: expectedETag,
-        Bucket: expectedBucket,
         Key: expectedImageKey,
       } as S3.ManagedUpload.SendData);
 
@@ -164,36 +104,20 @@ describe('FileService', () => {
       imageKeyMock = 'aTestImageKey';
     });
 
-    it('should be defined', () => {
-      expect(service.deletePublicFile).toBeDefined();
-    });
-
-    it('should be a function', () => {
-      expect(typeof service.deletePublicFile).toBe('function');
-    });
-
-    it('should be called with an imageKey of type string as argument', () => {
-      jest.spyOn(service, 'deletePublicFile');
-
-      service.deletePublicFile(imageKeyMock);
-
-      expect(service.deletePublicFile).toHaveBeenCalled();
-      expect(service.deletePublicFile).toHaveBeenCalledWith(imageKeyMock);
-    });
-
     it('should not return anything', () => {
       const result = service.deletePublicFile(imageKeyMock);
 
       expect(result).toBeUndefined();
     });
 
-    it('should call deleteObject method from s3 instance with a params and a callback function', () => {
+    it('should delete file from aws bucket with and specified params', () => {
       jest.spyOn(S3InstanceMock, 'deleteObject');
-      const bucketMock: string = 'aTestBucket';
-      const keyMock: string = 'aTestImageKey';
-      const paramsMock: S3.DeleteObjectRequest = {
-        Bucket: bucketMock,
-        Key: keyMock,
+      const bucketMock = 'aTestBucket';
+      const expectedBucket = bucketMock;
+      const expectedKey = imageKeyMock;
+      const expectedParams: S3.DeleteObjectRequest = {
+        Bucket: expectedBucket,
+        Key: expectedKey,
       };
       configSpyService.get.mockReturnValue(bucketMock);
 
@@ -201,7 +125,7 @@ describe('FileService', () => {
 
       expect(S3InstanceMock.deleteObject).toHaveBeenCalledTimes(1);
       expect(S3InstanceMock.deleteObject).toHaveBeenCalledWith(
-        paramsMock,
+        expectedParams,
         expect.any(Function),
       );
     });
