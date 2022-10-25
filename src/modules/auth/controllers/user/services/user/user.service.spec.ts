@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 
 import { createSpyObj } from 'jest-createspyobj';
-import { S3 } from 'aws-sdk';
 import { UpdateResult } from 'typeorm';
 
 import { UserService } from './user.service';
@@ -18,7 +17,7 @@ describe('UserService', () => {
 
   beforeEach(async () => {
     fileSpyService = createSpyObj(FileService);
-    usersSpyService = createSpyObj(UsersService)
+    usersSpyService = createSpyObj(UsersService);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -36,12 +35,12 @@ describe('UserService', () => {
 
     service = module.get<UserService>(UserService);
 
-    fileSpyService.uploadPublicFile.mockReturnValue((async () => ({}) as UploadResponse)());
-    usersSpyService.updatePictureKey.mockReturnValue((async () => ({}) as UpdateResult)())
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    fileSpyService.uploadPublicFile.mockReturnValue(
+      (async () => ({} as UploadResponse))(),
+    );
+    usersSpyService.updatePictureKey.mockReturnValue(
+      (async () => ({} as UpdateResult))(),
+    );
   });
 
   describe('uploadAvatarImage method', () => {
@@ -67,55 +66,21 @@ describe('UserService', () => {
         destination: '',
         filename: '',
         path: '',
-        buffer: null
+        buffer: null,
       };
     });
 
-    it('should be defined', () => {
-      expect(service.uploadAvatarImage).toBeDefined();
-    });
-
-    it('should be a function', () => {
-      expect(typeof service.uploadAvatarImage).toBe('function');
-    });
-  
-    it('should be an async function', () => {
-      const string: string = service.uploadAvatarImage.toString();
-
-      const isAsync: boolean = string.includes('async');
-
-      expect(isAsync).toBeTruthy();
-    });
-
-    it('should be called with a User and a File instances', async () => {
-      jest.spyOn(service, 'uploadAvatarImage');
-      
-      await service.uploadAvatarImage(userMock, fileMock);
-
-      expect(service.uploadAvatarImage).toHaveBeenCalledWith(userMock, fileMock);
-    });
-
-    it('should return a User intance', async () => {
-      const result: User = await service.uploadAvatarImage(userMock, fileMock);
-
-      expect(result instanceof User).toBeTruthy();
-    });
-
     it('should throw a BadRequestException if no image is sended', async () => {
-      const execute = async () => await service.uploadAvatarImage(userMock, null);
+      const expectedErrorMessage = 'Avatar image is required';
+
+      const execute = async () =>
+        await service.uploadAvatarImage(userMock, null);
 
       await expect(execute).rejects.toThrowError(BadRequestException);
+      await expect(execute).rejects.toThrow(expectedErrorMessage);
     });
 
-    it('should throw a specific error message if no image is sended', async () => {
-      const expectedErrorMessage: string = 'Avatar image is required';
-
-      const execute = async () => await service.uploadAvatarImage(userMock, null);
-
-      await expect(execute).rejects.toThrowError(expectedErrorMessage);
-    });
-
-    it('should call uploadPublicFile method from the fileService with their respective arguments', async () => {
+    it('should upload new profile picture', async () => {
       await service.uploadAvatarImage(userMock, fileMock);
 
       expect(fileSpyService.uploadPublicFile).toHaveBeenCalledTimes(1);
@@ -127,8 +92,8 @@ describe('UserService', () => {
       );
     });
 
-    it('should return the same user instance passed as argument but, with the profilePictureKey returned from uploadPublicFile Method', async () => {
-      const expectedImageKey: string = 'newKey';
+    it('should return the user with the new profile picture key', async () => {
+      const expectedImageKey = 'newKey';
       const expectedUser: User = new User();
       expectedUser.userId = userMock.userId;
       expectedUser.name = userMock.name;
@@ -137,42 +102,51 @@ describe('UserService', () => {
       expectedUser.cognitoId = userMock.cognitoId;
       expectedUser.createdAt = userMock.createdAt;
       expectedUser.updatedAt = userMock.updatedAt;
-      fileSpyService.uploadPublicFile.mockReturnValue((async () => {
-        return { imageKey: expectedImageKey } as UploadResponse;
-      })());
+      fileSpyService.uploadPublicFile.mockReturnValue(
+        (async () => {
+          return { imageKey: expectedImageKey } as UploadResponse;
+        })(),
+      );
 
       const result: User = await service.uploadAvatarImage(userMock, fileMock);
 
       expect(result.profilePictureKey).toBe(expectedImageKey);
-      expect(result).toStrictEqual(
-        expect.objectContaining(expectedUser)
-      );
+      expect(result).toStrictEqual(expect.objectContaining(expectedUser));
     });
 
-    it('should call deletePublicFile method from the fileService with the old profilePictureKey', async () => {
-      const oldProfilePictureKey: string = 'oldTestImageKey';
+    it('should delete old profile picture', async () => {
+      const oldProfilePictureKey = 'oldTestImageKey';
       userMock.profilePictureKey = oldProfilePictureKey;
-      fileSpyService.uploadPublicFile.mockReturnValue((async () => {
-        return { imageKey: 'newTestImageKey' } as UploadResponse;
-      })());
+      fileSpyService.uploadPublicFile.mockReturnValue(
+        (async () => {
+          return { imageKey: 'newTestImageKey' } as UploadResponse;
+        })(),
+      );
 
       await service.uploadAvatarImage(userMock, fileMock);
 
       expect(fileSpyService.deletePublicFile).toHaveBeenCalledTimes(1);
-      expect(fileSpyService.deletePublicFile).toHaveBeenCalledWith(oldProfilePictureKey);
+      expect(fileSpyService.deletePublicFile).toHaveBeenCalledWith(
+        oldProfilePictureKey,
+      );
     });
 
-    it('should call updatePictureKey method from usersService with the userId and the new profilePictureKey', async () => {
-      const newProfilePictureKey: string = 'newTestImageKey';
+    it('should update user profile picture key with the uploaded file key', async () => {
+      const newProfilePictureKey = 'newTestImageKey';
       userMock.userId = 'aUserId';
-      fileSpyService.uploadPublicFile.mockReturnValue((async () => {
-        return { imageKey: newProfilePictureKey } as UploadResponse;
-      })());
+      fileSpyService.uploadPublicFile.mockReturnValue(
+        (async () => {
+          return { imageKey: newProfilePictureKey } as UploadResponse;
+        })(),
+      );
 
       await service.uploadAvatarImage(userMock, fileMock);
 
       expect(usersSpyService.updatePictureKey).toHaveBeenCalledTimes(1);
-      expect(usersSpyService.updatePictureKey).toHaveBeenCalledWith(userMock.userId, newProfilePictureKey);
+      expect(usersSpyService.updatePictureKey).toHaveBeenCalledWith(
+        userMock.userId,
+        newProfilePictureKey,
+      );
     });
   });
 });

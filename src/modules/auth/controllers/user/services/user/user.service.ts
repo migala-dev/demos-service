@@ -12,23 +12,30 @@ export class UserService {
     private readonly usersService: UsersService,
   ) {}
 
-  public async uploadAvatarImage(user: User, file: Express.Multer.File): Promise<User> {
+  public async uploadAvatarImage(
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<User> {
     if (!file) throw new BadRequestException('Avatar image is required');
 
     const oldImageKey: string = user.profilePictureKey;
 
-    const uploadResponse: UploadResponse = await this.fileService.uploadPublicFile(
-      user.cognitoId,
-      file.buffer,
-      file.originalname,
-      file.fieldname,
-    );
+    const uploadResponse: UploadResponse =
+      await this.fileService.uploadPublicFile(
+        user.cognitoId,
+        file.buffer,
+        file.originalname,
+        file.fieldname,
+      );
 
     user.profilePictureKey = uploadResponse.imageKey;
 
     this.fileService.deletePublicFile(oldImageKey);
 
-    await this.usersService.updatePictureKey(user.userId, uploadResponse.imageKey);
+    await this.usersService.updatePictureKey(
+      user.userId,
+      uploadResponse.imageKey,
+    );
 
     return user;
   }
