@@ -27,32 +27,7 @@ describe('UserFromRequest decorator', () => {
     contextMock = new ExecutionContextHost([req, res]);
   });
 
-  it('should be called with a propertyName of type string and a context of type ExecutionContext', () => {
-    const propertyName: string = '';
-    const objectToSpy = { factory };
-    jest.spyOn(objectToSpy, 'factory');
-
-    objectToSpy.factory(propertyName, contextMock);
-
-    expect(objectToSpy.factory).toHaveBeenCalled();
-    expect(objectToSpy.factory).toHaveBeenCalledWith(propertyName, contextMock);
-  });
-
-  it('should return a User instance if no argument is passed', () => {
-    const result: User = factory(null, contextMock);
-
-    expect(result instanceof User).toBeTruthy();
-  });
-
-  it('should be call switchToHttp method from ctx', () => {
-    jest.spyOn(contextMock, 'switchToHttp');
-
-    factory(null, contextMock);
-
-    expect(contextMock.switchToHttp).toHaveBeenCalledTimes(1);
-  });
-
-  it('should be call getRequest method from the object returned by the switchToHttp method', () => {
+  it('should get request object', () => {
     const httpArgumentsHostMock: HttpArgumentsHost = {
       getRequest: jest.fn().mockReturnValue(req),
       getResponse: null,
@@ -64,36 +39,29 @@ describe('UserFromRequest decorator', () => {
 
     factory(null, contextMock);
 
+    expect(contextMock.switchToHttp).toHaveBeenCalledTimes(1);
     expect(httpArgumentsHostMock.getRequest).toHaveBeenCalledTimes(1);
   });
 
-  it('should throw an InternalServerErrorException if user is undefined', () => {
+  it('should throw an InternalServerErrorException if there is no user', () => {
     req = {};
     contextMock = new ExecutionContextHost([req, res]);
+    const expectedErrorMessage = 'User not found (request)';
 
     const execute = () => factory(null, contextMock);
 
     expect(execute).toThrowError(InternalServerErrorException);
-  });
-
-  it('should throw an expected error message if user is undefined', () => {
-    req = {};
-    contextMock = new ExecutionContextHost([req, res]);
-    const expectedErrorMessage: string = 'User not found (request)';
-
-    const execute = () => factory(null, contextMock);
-
     expect(execute).toThrow(expectedErrorMessage);
   });
 
-  it('should return same user instance returned by the getRequest method', () => {
+  it('should return user if no property name is provided', () => {
     const result: User = factory(null, contextMock);
 
     expect(result).toStrictEqual(expect.objectContaining(mockUser));
   });
 
-  it('should return the property specified as argument', () => {
-    const expectedPropertyName: string = 'userId';
+  it('should return property value if a property name is provided', () => {
+    const expectedPropertyName = 'userId';
     factory = getParamDecoratorFactory(UserFromRequest);
 
     const result: string = factory(expectedPropertyName, contextMock);
@@ -101,8 +69,8 @@ describe('UserFromRequest decorator', () => {
     expect(result).toBe(mockUser.userId);
   });
 
-  it('should return undefined if the property specified as argument is not a valid User property', () => {
-    const expectedPropertyName: string = 'somePropertyName';
+  it('should return undefined if property name provided is not valid', () => {
+    const expectedPropertyName = 'somePropertyName';
     req = { user: mockUser };
     contextMock = new ExecutionContextHost([req, res]);
     factory = getParamDecoratorFactory(UserFromRequest);
