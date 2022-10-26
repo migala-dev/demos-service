@@ -2,7 +2,6 @@ import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { TestingModule, Test } from '@nestjs/testing';
-import { AuthGuard } from '@nestjs/passport';
 
 import { createSpyObj } from 'jest-createspyobj';
 
@@ -27,39 +26,14 @@ describe('JwtAuthGuard', () => {
     context = new ExecutionContextHost([]);
   });
 
-  it('should be define', () => {
-    expect(guard).toBeDefined();
-  });
-
-  it('should be extends from AuthGuard("jwt") class', () => {
-    expect(guard instanceof AuthGuard('jwt'));
-  });
-
   describe('canActive method', () => {
-    it('should be defined', () => {
-      expect(guard).toBeDefined();
-    });
-
-    it('should be a function', () => {
-      expect(typeof guard.canActivate).toBe('function');
-    });
-
-    it('should be called with a context of type ExecutionContext', () => {
-      jest.spyOn(guard, 'canActivate');
-
-      guard.canActivate(context);
-
-      expect(guard.canActivate).toHaveBeenCalled();
-      expect(guard.canActivate).toHaveBeenCalledWith(context);
-    });
-
-    it('should call getAllAndOverride method from reflector', () => {
+    it('should get if the enpoint is public or not', () => {
       guard.canActivate(context);
 
       expect(reflectorSpy.getAllAndOverride).toHaveBeenCalledTimes(1);
     });
 
-    it('should return true if the value returned by getAllAndOverride method is true', () => {
+    it('should return true if the endpoint is public', () => {
       const result = guard.canActivate(context);
 
       expect(result).toBeTruthy();
