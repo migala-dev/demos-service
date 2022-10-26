@@ -3,7 +3,9 @@ import { CustomDecorator, SetMetadata } from '@nestjs/common';
 import { Public, IS_PUBLIC_KEY } from './public.decorator';
 
 jest.mock('@nestjs/common', () => ({
-  SetMetadata: jest.fn(),
+  SetMetadata: jest
+    .fn()
+    .mockResolvedValue({ KEY: 'isPublic' } as CustomDecorator<string>),
 }));
 
 describe('Public decorator', () => {
@@ -16,16 +18,8 @@ describe('Public decorator', () => {
   });
 
   describe('IS_PUBLIC_KEY constant', () => {
-    it('should be defined', () => {
-      expect(constant).toBeDefined();
-    });
-
-    it('should be a string', () => {
-      expect(typeof constant).toBe('string');
-    });
-
     it('should be equal to isPublic', () => {
-      const expectedValue: string = 'isPublic';
+      const expectedValue = 'isPublic';
 
       expect(constant).toBe(expectedValue);
     });
@@ -36,18 +30,22 @@ describe('Public decorator', () => {
       jest.clearAllMocks();
     });
 
-    it('should be defined', () => {
-      expect(decorator).toBeDefined();
-    });
+    it('should get decorator with set metadata', () => {
+      const expectedKey = 'isPublic';
+      const expectedValue = true;
 
-    it('should be a function', () => {
-      expect(typeof decorator).toBe('function');
-    });
-
-    it('should call SetMetadata function with the IS_PUBLIC_KEY constant and a true bolean as arguments', () => {
       decorator();
 
       expect(SetMetadata).toHaveBeenCalledTimes(1);
+      expect(SetMetadata).toHaveBeenCalledWith(expectedKey, expectedValue);
+    });
+
+    it('should return decorator', () => {
+      const expectedKey = 'isPublic';
+
+      const result: CustomDecorator<string> = decorator();
+
+      expect(expectedKey in result);
     });
   });
 });
