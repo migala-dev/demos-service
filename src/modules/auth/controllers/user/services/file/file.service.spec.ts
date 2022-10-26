@@ -50,7 +50,7 @@ describe('FileService', () => {
       fieldnameMock = 'file';
     });
 
-    it('should upload file to aws bucket with a specified params', async () => {
+    it('should upload the file to aws bucket with some specified params', async () => {
       jest.spyOn(String.prototype, 'slice').mockReturnValue('1234');
       const bucketMock = 'aTestBucket';
       configSpyService.get.mockReturnValue(bucketMock);
@@ -110,7 +110,7 @@ describe('FileService', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should delete file from aws bucket with and specified params', () => {
+    it('should delete the file from aws bucket with some specified params', () => {
       jest.spyOn(S3InstanceMock, 'deleteObject');
       const bucketMock = 'aTestBucket';
       const expectedBucket = bucketMock;
