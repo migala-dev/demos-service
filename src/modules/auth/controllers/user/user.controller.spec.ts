@@ -25,11 +25,9 @@ describe('UserController', () => {
 
     controller = module.get<UserController>(UserController);
 
-    userSpyService.uploadAvatarImage.mockReturnValue((async () => ({}) as User)());
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    userSpyService.uploadAvatarImage.mockReturnValue(
+      (async () => ({} as User))(),
+    );
   });
 
   describe('updateProfilePicture method', () => {
@@ -38,90 +36,58 @@ describe('UserController', () => {
 
     beforeEach(() => {
       userMock = new User();
+      userMock.userId = 'aUserId';
+      userMock.name = 'aName';
+      userMock.phoneNumber = 'aPhoneNumber';
+      userMock.profilePictureKey = 'aProfilePictureKey';
+      userMock.cognitoId = 'aCognitoId';
+      userMock.createdAt = null;
+      userMock.updatedAt = null;
       fileMock = {
-        fieldname: '',
-        originalname: '',
-        encoding: '',
-        mimetype: '',
+        fieldname: 'aFieldname',
+        originalname: 'anOriginalname',
+        encoding: 'anEncoding',
+        mimetype: 'aMimeType',
         size: 0,
         stream: null,
-        destination: '',
-        filename: '',
-        path: '',
-        buffer: null
+        destination: 'aDestination',
+        filename: 'aFilename',
+        path: 'aPath',
+        buffer: null,
       };
     });
 
-    it('should be defined', () => {
-      expect(controller.updateProfilePicture).toBeDefined();
-    });
-
-    it('should be called with a User Instance and a File intance', () => {
-      jest.spyOn(controller, 'updateProfilePicture');
-      
-      controller.updateProfilePicture(userMock, fileMock);
-
-      expect(controller.updateProfilePicture).toHaveBeenCalledWith(userMock, fileMock);
-    });
-
-    it('should return a User instance', () => {
-      userSpyService.uploadAvatarImage.mockReturnValue((async () => new User())());
-
-      const result: Promise<User> = controller.updateProfilePicture(userMock, fileMock);
-
-      expect(result instanceof Promise<User>).toBeTruthy();
-    });
-
-    it('should called uploadAvatarImage method from userService', () => {
+    it('should upload avatar image', () => {
       controller.updateProfilePicture(userMock, fileMock);
 
       expect(userSpyService.uploadAvatarImage).toHaveBeenCalledTimes(1);
-    });
-
-    it('should called uploadAvatarImage method from userService with a user and a file instance', () => {
-      controller.updateProfilePicture(userMock, fileMock);
-
-      expect(userSpyService.uploadAvatarImage).toHaveBeenCalledTimes(1);
-      expect(userSpyService.uploadAvatarImage).toHaveBeenCalledWith(userMock, fileMock);
-    });
-
-    it('should return the same user instance returned from uploadAvatarImage method', async () => {
-      userMock.userId = '';
-      userMock.name = '';
-      userMock.phoneNumber = '';
-      userMock.profilePictureKey = '';
-      userMock.cognitoId = '';
-      userMock.createdAt = null;
-      userMock.updatedAt = null;
-      userSpyService.uploadAvatarImage.mockReturnValue((async () => userMock)());
-
-      const result: User = await controller.updateProfilePicture(userMock, fileMock);
-
-      expect(result).toStrictEqual(
-        expect.objectContaining(userMock)
+      expect(userSpyService.uploadAvatarImage).toHaveBeenCalledWith(
+        userMock,
+        fileMock,
       );
     });
 
-    it('should return a User instance with an expected profilePictureKey', async () => {
-      userMock.userId = '';
-      userMock.name = '';
-      userMock.phoneNumber = '';
-      userMock.profilePictureKey = '';
-      userMock.cognitoId = '';
-      userMock.createdAt = null;
-      userMock.updatedAt = null;
-      const expectedProfilePictureKey: string = 'testProfilePictureKey';
-      userSpyService.uploadAvatarImage.mockReturnValue((async () => {
-        userMock.profilePictureKey = expectedProfilePictureKey;
-
-        return userMock;
-      })());
-
-      const result: User = await controller.updateProfilePicture(userMock, fileMock);
-
-      expect(result).toStrictEqual(
-        expect.objectContaining({ profilePictureKey: expectedProfilePictureKey })
+    it('should return the user with the new profile picture key', async () => {
+      userMock.profilePictureKey = 'testProfilePictureKey';
+      const expectedProfilePictureKey: string = userMock.profilePictureKey;
+      const expectedUser = new User();
+      expectedUser.userId = userMock.userId;
+      expectedUser.name = userMock.name;
+      expectedUser.phoneNumber = userMock.phoneNumber;
+      expectedUser.profilePictureKey = expectedProfilePictureKey;
+      expectedUser.cognitoId = userMock.cognitoId;
+      expectedUser.createdAt = userMock.createdAt;
+      expectedUser.updatedAt = userMock.updatedAt;
+      userSpyService.uploadAvatarImage.mockReturnValue(
+        (async () => userMock)(),
       );
+
+      const result: User = await controller.updateProfilePicture(
+        userMock,
+        fileMock,
+      );
+
+      expect(result).toStrictEqual(expect.objectContaining(expectedUser));
     });
   });
 });
