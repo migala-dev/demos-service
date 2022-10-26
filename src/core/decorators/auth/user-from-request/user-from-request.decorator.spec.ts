@@ -43,7 +43,7 @@ describe('UserFromRequest decorator', () => {
     expect(httpArgumentsHostMock.getRequest).toHaveBeenCalledTimes(1);
   });
 
-  it('should throw an InternalServerErrorException if there is no user', () => {
+  it('should throw an InternalServerErrorException if there is no user in the request object', () => {
     req = {};
     contextMock = new ExecutionContextHost([req, res]);
     const expectedErrorMessage = 'User not found (request)';
@@ -69,7 +69,7 @@ describe('UserFromRequest decorator', () => {
     expect(result).toBe(mockUser.userId);
   });
 
-  it('should return undefined if property name provided is not valid', () => {
+  it('should return undefined if the property name provided is not valid', () => {
     const expectedPropertyName = 'somePropertyName';
     req = { user: mockUser };
     contextMock = new ExecutionContextHost([req, res]);

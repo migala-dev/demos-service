@@ -92,7 +92,7 @@ describe('UserService', () => {
       );
     });
 
-    it('should return the user with a new profile picture key', async () => {
+    it('should return the user with the new profile picture key', async () => {
       const expectedImageKey = 'newKey';
       const expectedUser: User = new User();
       expectedUser.userId = userMock.userId;

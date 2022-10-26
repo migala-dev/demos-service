@@ -40,7 +40,7 @@ describe('Public decorator', () => {
       expect(SetMetadata).toHaveBeenCalledWith(expectedKey, expectedValue);
     });
 
-    it('should return decorator', () => {
+    it('should return the decorator', () => {
       const expectedKey = 'isPublic';
 
       const result: CustomDecorator<string> = decorator();

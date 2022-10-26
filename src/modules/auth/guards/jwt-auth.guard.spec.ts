@@ -27,7 +27,7 @@ describe('JwtAuthGuard', () => {
   });
 
   describe('canActive method', () => {
-    it('should get if the enpoint is public or not', () => {
+    it('should get metadata about if the enpoint is public or not', () => {
       guard.canActivate(context);
 
       expect(reflectorSpy.getAllAndOverride).toHaveBeenCalledTimes(1);

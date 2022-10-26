@@ -35,7 +35,7 @@ describe('JwtStrategy', () => {
       );
     });
 
-    it('should find a respective user with the cognito id contained in the payload as username', async () => {
+    it('should find the user with the cognito id contained in the payload as username', async () => {
       await strategy.validate(payload);
 
       expect(usersSpyService.findOneByCognitoId).toHaveBeenCalledTimes(1);
@@ -44,7 +44,7 @@ describe('JwtStrategy', () => {
       );
     });
 
-    it('should throw UnauthorizedException error if user is not found', async () => {
+    it('should throw UnauthorizedException error if the user is not found', async () => {
       usersSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
 
       const execute = async () => await strategy.validate(payload);
