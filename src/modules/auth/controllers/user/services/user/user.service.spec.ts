@@ -80,7 +80,7 @@ describe('UserService', () => {
       await expect(execute).rejects.toThrow(expectedErrorMessage);
     });
 
-    it('should upload new profile picture', async () => {
+    it('should upload the new profile picture', async () => {
       await service.uploadAvatarImage(userMock, fileMock);
 
       expect(fileSpyService.uploadPublicFile).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ describe('UserService', () => {
       );
     });
 
-    it('should return the user with the new profile picture key', async () => {
+    it('should return the user with a new profile picture key', async () => {
       const expectedImageKey = 'newKey';
       const expectedUser: User = new User();
       expectedUser.userId = userMock.userId;
@@ -114,7 +114,7 @@ describe('UserService', () => {
       expect(result).toStrictEqual(expect.objectContaining(expectedUser));
     });
 
-    it('should delete old profile picture', async () => {
+    it('should delete the old profile picture', async () => {
       const oldProfilePictureKey = 'oldTestImageKey';
       userMock.profilePictureKey = oldProfilePictureKey;
       fileSpyService.uploadPublicFile.mockReturnValue(
@@ -131,7 +131,7 @@ describe('UserService', () => {
       );
     });
 
-    it('should update user profile picture key with the uploaded file key', async () => {
+    it('should update the user profile picture key with the uploaded file key', async () => {
       const newProfilePictureKey = 'newTestImageKey';
       userMock.userId = 'aUserId';
       fileSpyService.uploadPublicFile.mockReturnValue(
