@@ -2,9 +2,9 @@ import { Column } from 'typeorm';
 import { DateColumns } from './date-columns.helper';
 
 export class ByAndDateColumns extends DateColumns {
-  @Column({ nullable: true })
+  @Column({ type: 'uuid' })
   createdBy: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid' })
   updatedBy: string;
 }

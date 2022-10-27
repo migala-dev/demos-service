@@ -8,25 +8,25 @@ export class Member extends ByAndDateColumns {
   @PrimaryGeneratedColumn('uuid')
   memberId: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid' })
   spaceId: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid' })
   userId: string;
   
-  @Column({ enum: InvitationStatus })
+  @Column({ type: 'integer', enum: InvitationStatus, nullable: true })
   invitationStatus: number;
 
-  @Column({ enum: SpaceRole, nullable: true })
+  @Column({ type: 'varchar', length: 30, enum: SpaceRole })
   role: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   name: string;
 
   @Column({ type: 'timestamptz', nullable: true })
   expiredAt: Date;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false, nullable: true })
   deleted: boolean;
 
   public setExpireAt() {

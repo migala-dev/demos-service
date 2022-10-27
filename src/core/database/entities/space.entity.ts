@@ -7,21 +7,21 @@ export class Space extends DateColumns {
   @PrimaryGeneratedColumn('uuid')
   spaceId: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   description: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   pictureKey: string;
 
-  @Column()
+  @Column({ type: 'integer' })
   approvalPercentage: number;
 
-  @Column()
+  @Column({ type: 'integer' })
   participationPercentage: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'uuid' })
   ownerId: string;
 }
