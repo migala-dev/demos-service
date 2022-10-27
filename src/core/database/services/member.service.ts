@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
 import { Member } from '../entities/member.entity';
-import { InvitationStatus } from '../../enums/invitation-status.enum';
+import { InvitationStatus } from '../../enums';
 
 @Injectable()
 export class MembersService {
-  constructor(private readonly membersRepository: Repository<Member>) {}
+  constructor(
+    @InjectRepository(Member)
+    private readonly membersRepository: Repository<Member>,
+  ) {}
 
   create(
     spaceId: string,
