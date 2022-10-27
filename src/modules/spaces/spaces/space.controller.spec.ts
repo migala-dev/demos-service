@@ -45,32 +45,27 @@ describe('SpacesController', () => {
     });
 
     it('should create a new space', async () => {
-      const expectedNewSpace: SpaceDto = newSpaceMock;
-      const expectedUserId: string = userMock.userId;
+      userMock.userId = '';
 
       await controller.create(newSpaceMock, userMock);
 
       expect(spaceSpyService.create).toHaveBeenCalledTimes(1);
       expect(spaceSpyService.create).toHaveBeenCalledWith(
-        expectedNewSpace,
-        expectedUserId,
+        newSpaceMock,
+        userMock.userId,
       );
     });
 
     it('should return an object with the new space and member', async () => {
-      const createResponseMock: CreateSpaceResponse = {
+      const createSpaceResponseMock: CreateSpaceResponse = {
         space: new Space(),
         member: new Member(),
       };
       spaceSpyService.create.mockReturnValue(
         (async () => {
-          return createResponseMock;
+          return createSpaceResponseMock;
         })(),
       );
-      const expectedCreateSpaceResponse: CreateSpaceResponse = {
-        space: createResponseMock.space,
-        member: createResponseMock.member,
-      };
 
       const result: CreateSpaceResponse = await controller.create(
         newSpaceMock,
@@ -78,10 +73,10 @@ describe('SpacesController', () => {
       );
 
       expect(result.space).toStrictEqual(
-        expect.objectContaining(expectedCreateSpaceResponse.space),
+        expect.objectContaining(createSpaceResponseMock.space),
       );
       expect(result.member).toStrictEqual(
-        expect.objectContaining(expectedCreateSpaceResponse.member),
+        expect.objectContaining(createSpaceResponseMock.member),
       );
     });
   });

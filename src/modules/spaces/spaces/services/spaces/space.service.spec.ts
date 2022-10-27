@@ -50,49 +50,42 @@ describe('SpacesService', () => {
     });
 
     it('should create space', async () => {
-      const expectedSpace: SpaceDto = newSpaceMock;
-      const expectedUserId: string = userIdMock;
-
       await service.create(newSpaceMock, userIdMock);
 
       expect(spacesSpyService.create).toHaveBeenCalledTimes(1);
       expect(spacesSpyService.create).toHaveBeenCalledWith(
-        expectedSpace,
-        expectedUserId,
+        newSpaceMock,
+        userIdMock,
       );
     });
 
     it('should create space member', async () => {
-      let createdSpaceMock: Space;
       const spaceIdMock = 'aSpaceId';
       spacesSpyService.create.mockReturnValue(
         (async () => {
-          createdSpaceMock = new Space();
+          const createdSpaceMock: Space = new Space();
           createdSpaceMock.spaceId = spaceIdMock;
 
           return createdSpaceMock;
         })(),
       );
-      const expectedSpaceId: string = spaceIdMock;
-      const expectedUserId: string = userIdMock;
       const expectedInvitationStatus: InvitationStatus =
         InvitationStatus.ACCEPTED;
       const expectedSpaceRole: SpaceRole = SpaceRole.ADMIN;
-      const expectedCreatedBy: string = userIdMock;
 
       await service.create(newSpaceMock, userIdMock);
 
       expect(membersSpyService.create).toHaveBeenCalledTimes(1);
       expect(membersSpyService.create).toHaveBeenCalledWith(
-        expectedSpaceId,
-        expectedUserId,
+        spaceIdMock,
+        userIdMock,
         expectedInvitationStatus,
         expectedSpaceRole,
-        expectedCreatedBy,
+        userIdMock,
       );
     });
 
-    it('should return an object with the new space and member', async () => {
+    it('should return an object contains new space and member', async () => {
       const newSpaceMock: Space = new Space();
       const newMemberMock: Member = new Member();
       spacesSpyService.create.mockReturnValue(
