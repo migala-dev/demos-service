@@ -7,7 +7,7 @@ export class Space extends DateColumns {
   @PrimaryGeneratedColumn('uuid')
   spaceId: string;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
   @Column({ nullable: true })
@@ -22,6 +22,6 @@ export class Space extends DateColumns {
   @Column()
   participationPercentage: number;
 
-  @Column()
+  @Column({ nullable: true })
   ownerId: string;
 }

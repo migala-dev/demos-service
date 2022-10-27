@@ -1,40 +1,33 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import { DateColumns } from './utils/date-columns.helper';
-import { SpaceRole } from '../../enums';
-import { InvitationStatus } from '../../enums/invitation-status.enum';
+import { InvitationStatus, SpaceRole } from '../../enums';
+import { ByAndDateColumns } from './utils/by-and-date-columns.helper';
 
 @Entity('members')
-export class Member extends DateColumns {
+export class Member extends ByAndDateColumns {
   @PrimaryGeneratedColumn('uuid')
   memberId: string;
 
-  @Column()
+  @Column({ nullable: true })
   spaceId: string;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
   
   @Column({ enum: InvitationStatus })
   invitationStatus: number;
 
-  @Column({ enum: SpaceRole})
+  @Column({ enum: SpaceRole, nullable: true })
   role: string;
 
   @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ type: 'timestamptz', nullable: true })
   expiredAt: Date;
 
-  @Column()
+  @Column({ default: false })
   deleted: boolean;
-
-  @Column()
-  createdBy: string;
-
-  @Column()
-  updatedBy: string;
 
   public setExpireAt() {
     const today: Date = new Date();
