@@ -24,7 +24,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
         database: configService.get<string>('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         ssl: { rejectUnauthorized: false },
-        synchronize: true,
+        synchronize: false,
         namingStrategy: new SnakeNamingStrategy(),
       }),
       inject: [ConfigService],
