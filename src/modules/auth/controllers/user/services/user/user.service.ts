@@ -12,6 +12,13 @@ export class UserService {
     private readonly usersService: UsersService,
   ) {}
 
+  public async updateUserName(
+    user: User,
+    name: string,
+  ): Promise<User> {
+    return this.usersService.updateUserName(user.userId, name);
+  }
+
   public async uploadAvatarImage(
     user: User,
     file: Express.Multer.File,
