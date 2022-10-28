@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { createSpyObj } from 'jest-createspyobj';
+import { mock } from 'jest-mock-extended';
 
 import { SpaceService } from './space.service';
-import { SpaceDto } from '../../dtos/space.dto';
+import { SpaceModel } from '../../models/space.model';
 import { SpacesService } from '../../../../../core/database/services/space.service';
 import { Space } from '../../../../../core/database/entities/space.entity';
 import { MembersService } from '../../../../../core/database/services/member.service';
@@ -41,16 +42,16 @@ describe('SpacesService', () => {
   });
 
   describe('create method', () => {
-    let newSpaceMock: SpaceDto;
+    let newSpaceMock: SpaceModel;
     let userIdMock: string;
 
     beforeEach(() => {
-      newSpaceMock = new SpaceDto();
+      newSpaceMock = mock<SpaceModel>();
       userIdMock = 'aUserId';
     });
 
     it('should create space', async () => {
-      await service.create(newSpaceMock, userIdMock);
+      await service.createSpaceAndOwnerMember(newSpaceMock, userIdMock);
 
       expect(spacesSpyService.create).toHaveBeenCalledTimes(1);
       expect(spacesSpyService.create).toHaveBeenCalledWith(
@@ -59,7 +60,7 @@ describe('SpacesService', () => {
       );
     });
 
-    it('should create space member', async () => {
+    it('should create owner member', async () => {
       const spaceIdMock = 'aSpaceId';
       spacesSpyService.create.mockReturnValue(
         (async () => {
@@ -73,7 +74,7 @@ describe('SpacesService', () => {
         InvitationStatus.ACCEPTED;
       const expectedSpaceRole: SpaceRole = SpaceRole.ADMIN;
 
-      await service.create(newSpaceMock, userIdMock);
+      await service.createSpaceAndOwnerMember(newSpaceMock, userIdMock);
 
       expect(membersSpyService.create).toHaveBeenCalledTimes(1);
       expect(membersSpyService.create).toHaveBeenCalledWith(
@@ -85,28 +86,26 @@ describe('SpacesService', () => {
       );
     });
 
-    it('should return an object contains new space and member', async () => {
-      const newSpaceMock: Space = new Space();
-      const newMemberMock: Member = new Member();
+    it('should return an object that contains the new space and owner member', async () => {
+      const createdNewSpaceMock: Space = new Space();
+      const createdNewMemberMock: Member = new Member();
       spacesSpyService.create.mockReturnValue(
         (async () => {
-          return newSpaceMock;
+          return createdNewSpaceMock;
         })(),
       );
       membersSpyService.create.mockReturnValue(
         (async () => {
-          return newMemberMock;
+          return createdNewMemberMock;
         })(),
       );
       const expectedResult: CreateSpaceResponse = {
-        space: newSpaceMock,
-        member: newMemberMock,
+        space: createdNewSpaceMock,
+        member: createdNewMemberMock,
       };
 
-      const result: CreateSpaceResponse = await service.create(
-        newSpaceMock,
-        userIdMock,
-      );
+      const result: CreateSpaceResponse =
+        await service.createSpaceAndOwnerMember(newSpaceMock, userIdMock);
 
       expect(result.space).toStrictEqual(
         expect.objectContaining(expectedResult.space),

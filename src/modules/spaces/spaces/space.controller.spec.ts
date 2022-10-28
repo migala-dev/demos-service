@@ -6,6 +6,7 @@ import { SpaceController } from './space.controller';
 import { User } from '../../../core/database/entities/user.entity';
 import { SpaceService } from './services/spaces/space.service';
 import { SpaceDto } from './dtos/space.dto';
+import { SpaceModel } from './models/space.model';
 import { CreateSpaceResponse } from './response/create.response';
 import { Space } from '../../../core/database/entities/space.entity';
 import { Member } from '../../../core/database/entities/member.entity';
@@ -30,45 +31,48 @@ describe('SpacesController', () => {
 
     controller = module.get<SpaceController>(SpaceController);
 
-    spaceSpyService.create.mockReturnValue(
+    spaceSpyService.createSpaceAndOwnerMember.mockReturnValue(
       (async () => ({} as CreateSpaceResponse))(),
     );
   });
 
   describe('create method', () => {
-    let newSpaceMock: SpaceDto;
+    let spaceDtoMock: SpaceDto;
     let userMock: User;
 
     beforeEach(() => {
-      newSpaceMock = new SpaceDto();
+      spaceDtoMock = new SpaceDto();
       userMock = new User();
     });
 
     it('should create a new space', async () => {
       userMock.userId = '';
+      const expectedNewSpace: SpaceModel = { ...spaceDtoMock };
 
-      await controller.create(newSpaceMock, userMock);
+      await controller.create(spaceDtoMock, userMock);
 
-      expect(spaceSpyService.create).toHaveBeenCalledTimes(1);
-      expect(spaceSpyService.create).toHaveBeenCalledWith(
-        newSpaceMock,
+      expect(spaceSpyService.createSpaceAndOwnerMember).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(spaceSpyService.createSpaceAndOwnerMember).toHaveBeenCalledWith(
+        expectedNewSpace,
         userMock.userId,
       );
     });
 
-    it('should return an object with the new space and member', async () => {
+    it('should return an object with the new space and owner member', async () => {
       const createSpaceResponseMock: CreateSpaceResponse = {
         space: new Space(),
         member: new Member(),
       };
-      spaceSpyService.create.mockReturnValue(
+      spaceSpyService.createSpaceAndOwnerMember.mockReturnValue(
         (async () => {
           return createSpaceResponseMock;
         })(),
       );
 
       const result: CreateSpaceResponse = await controller.create(
-        newSpaceMock,
+        spaceDtoMock,
         userMock,
       );
 

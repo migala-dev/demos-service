@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Member } from '../entities/member.entity';
-import { InvitationStatus } from '../../enums';
+import { InvitationStatus, SpaceRole } from '../../enums';
 
 @Injectable()
 export class MembersService {
@@ -13,11 +13,11 @@ export class MembersService {
     private readonly membersRepository: Repository<Member>,
   ) {}
 
-  create(
+  public create(
     spaceId: string,
     userId: string,
-    invitationStatus: number,
-    role: string,
+    invitationStatus: InvitationStatus,
+    role: SpaceRole,
     createdBy: string,
   ): Promise<Member> {
     const newMember: Member = new Member();
@@ -27,9 +27,6 @@ export class MembersService {
     newMember.role = role;
     newMember.createdBy = createdBy;
     newMember.updatedBy = createdBy;
-    if (invitationStatus === InvitationStatus.SENDED) {
-      newMember.setExpireAt();
-    }
 
     return this.membersRepository.save(newMember);
   }

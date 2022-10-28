@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { SpaceDto } from '../../dtos/space.dto';
+import { SpaceModel } from '../../models/space.model';
 import { SpacesService } from '../../../../../core/database/services/space.service';
 import { MembersService } from '../../../../../core/database/services/member.service';
 import { Space } from '../../../../../core/database/entities/space.entity';
@@ -15,8 +15,8 @@ export class SpaceService {
     private readonly membersService: MembersService,
   ) {}
 
-  public async create(
-    newSpace: SpaceDto,
+  public async createSpaceAndOwnerMember(
+    newSpace: SpaceModel,
     userId: string,
   ): Promise<CreateSpaceResponse> {
     const space: Space = await this.spacesService.create(newSpace, userId);

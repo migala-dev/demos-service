@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { InvitationStatus, SpaceRole } from '../../enums';
 import { ByAndDateColumns } from './utils/by-and-date-columns.helper';
@@ -13,7 +13,7 @@ export class Member extends ByAndDateColumns {
 
   @Column({ type: 'uuid' })
   userId: string;
-  
+
   @Column({ type: 'integer', enum: InvitationStatus, nullable: true })
   invitationStatus: number;
 
@@ -29,10 +29,13 @@ export class Member extends ByAndDateColumns {
   @Column({ type: 'boolean', default: false, nullable: true })
   deleted: boolean;
 
+  @BeforeInsert()
   public setExpireAt() {
-    const today: Date = new Date();
-    const expiredDate: Date = new Date();
-    expiredDate.setDate(today.getDate() + 7);
-    this.expiredAt = expiredDate;
+    if (this.invitationStatus === InvitationStatus.SENDED) {
+      const today: Date = new Date();
+      const expiredDate: Date = new Date();
+      expiredDate.setDate(today.getDate() + 7);
+      this.expiredAt = expiredDate;
+    }
   }
 }
