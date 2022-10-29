@@ -15,10 +15,10 @@ export class Member extends ByAndDateColumns {
   userId: string;
 
   @Column({ type: 'integer', enum: InvitationStatus, nullable: true })
-  invitationStatus: number;
+  invitationStatus: InvitationStatus;
 
   @Column({ type: 'varchar', length: 30, enum: SpaceRole })
-  role: string;
+  role: SpaceRole;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   name: string;
