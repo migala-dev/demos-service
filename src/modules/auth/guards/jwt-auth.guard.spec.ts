@@ -22,13 +22,13 @@ describe('JwtAuthGuard', () => {
 
     guard = module.get<JwtAuthGuard>(JwtAuthGuard);
 
-    reflectorSpy.getAllAndOverride.mockReturnValue(true);
-
     context = new ExecutionContextHost([]);
   });
 
   describe('canActive method', () => {
     it('should return true if the endpoint is public', () => {
+      reflectorSpy.getAllAndOverride.mockReturnValue(true);
+
       const result = guard.canActivate(context);
 
       expect(result).toBeTruthy();
