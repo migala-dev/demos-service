@@ -23,4 +23,8 @@ export class SpacesService {
 
     return this.spacesRepository.save(spaceToCreate);
   }
+
+  public findOneById(spaceId: string) {
+    return this.spacesRepository.findOneBy({ spaceId });
+  }
 }
