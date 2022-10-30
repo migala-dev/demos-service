@@ -6,6 +6,7 @@ import { TestingModule, Test } from '@nestjs/testing';
 import { createSpyObj } from 'jest-createspyobj';
 
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
@@ -27,16 +28,19 @@ describe('JwtAuthGuard', () => {
   });
 
   describe('canActive method', () => {
-    it('should get metadata about if the enpoint is public or not', () => {
-      guard.canActivate(context);
-
-      expect(reflectorSpy.getAllAndOverride).toHaveBeenCalledTimes(1);
-    });
-
     it('should return true if the endpoint is public', () => {
       const result = guard.canActivate(context);
 
       expect(result).toBeTruthy();
+    });
+
+    it('should return false if the endpoint is not public', () => {
+      reflectorSpy.getAllAndOverride.mockReturnValue(false);
+      jest.spyOn(AuthGuard('jwt').prototype, 'canActivate').mockReturnValue(false);
+
+      const result = guard.canActivate(context);
+
+      expect(result).not.toBeTruthy();
     });
   });
 });
