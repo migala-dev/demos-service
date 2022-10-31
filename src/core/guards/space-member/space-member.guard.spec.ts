@@ -59,9 +59,8 @@ describe('SpaceMemberGuard', () => {
       );
     });
 
-    it('should throw an InternalServerErrorException if there is no member in the request object', async () => {
+    it('should throw an InternalServerErrorException if there is not a member in the request object', async () => {
       requestObjectMock.user = undefined;
-      httpArgumentsHost.getRequest.mockReturnValue(requestObjectMock);
 
       const execute = async () => await guard.canActivate(executionContextMock);
 
@@ -76,7 +75,7 @@ describe('SpaceMemberGuard', () => {
       await expect(execute).rejects.toThrowError(BadRequestException);
     });
 
-    it('should throw an UnauthorizedException if user is not a member of the space', async () => {
+    it('should throw an UnauthorizedException if the user is not a member of the space', async () => {
       membersSpyService.findOneByUserIdAndSpaceId.mockReturnValue(
         (async () => null)(),
       );
@@ -92,7 +91,7 @@ describe('SpaceMemberGuard', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should attach space and member owner to request object', async () => {
+    it('should attach space and owner member to request object', async () => {
       const [spaceMock, memberMock] = await Promise.all([
         spaceMockFactory(chance),
         memberMockFactory(chance),
@@ -115,53 +114,5 @@ describe('SpaceMemberGuard', () => {
         expect.objectContaining(memberMock),
       );
     });
-    /*
-
-    it('should attach space and member owner to request object with undefined values', async () => {
-      const spaceMock: Space = new Space();
-      const memberMock: Member = new Member();
-      memberMock.spaceId = spaceMock.spaceId;
-      memberMock.userId = spaceMock.ownerId;
-      spacesSpyService.findOneById.mockReturnValue(
-        (async () => ({ ...spaceMock } as Space))(),
-      );
-      membersSpyService.findOneByUserIdAndSpaceId.mockReturnValue(
-        (async () => ({ ...memberMock } as Member))(),
-      );
-
-      await guard.canActivate(executionContextMock);
-
-      expect(requestObjectMock.space).toStrictEqual(
-        expect.objectContaining(spaceMock),
-      );
-      expect(requestObjectMock.member).toStrictEqual(
-        expect.objectContaining(memberMock),
-      );
-    });
-
-    it('should attach space and member owner to request object with manual data', async () => {
-      const spaceMock: Space = new Space();
-      spaceMock.name = 'aTestName';
-      spaceMock.description = 'aTestDescription';
-      const memberMock: Member = new Member();
-      memberMock.spaceId = spaceMock.spaceId;
-      memberMock.userId = spaceMock.ownerId;
-      spacesSpyService.findOneById.mockReturnValue(
-        (async () => ({ ...spaceMock } as Space))(),
-      );
-      membersSpyService.findOneByUserIdAndSpaceId.mockReturnValue(
-        (async () => ({ ...memberMock } as Member))(),
-      );
-
-      await guard.canActivate(executionContextMock);
-
-      expect(requestObjectMock.space).toStrictEqual(
-        expect.objectContaining(spaceMock),
-      );
-      expect(requestObjectMock.member).toStrictEqual(
-        expect.objectContaining(memberMock),
-      );
-    });
-    */
   });
 });

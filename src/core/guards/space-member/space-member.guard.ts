@@ -11,7 +11,10 @@ import { User } from '../../database/entities/user.entity';
 import { MembersService } from '../../database/services/member.service';
 import { Space } from '../../database/entities/space.entity';
 import { SpacesService } from '../../database/services/space.service';
-import { UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { SpaceMemberRequest } from '../../interfaces/request.interface';
 import { Params } from '../../interfaces/params.interface';
 
@@ -23,7 +26,9 @@ export class SpaceMemberGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: SpaceMemberRequest<Params> = context.switchToHttp().getRequest();
+    const request: SpaceMemberRequest<Params> = context
+      .switchToHttp()
+      .getRequest();
 
     return await this.validateRequest(request);
   }
