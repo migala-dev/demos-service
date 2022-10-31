@@ -5,31 +5,28 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { Observable } from 'rxjs';
-
 import { Member } from '../../database/entities/member.entity';
 import { SpaceRole } from '../../enums';
 import { SPACE_ROLES_KEY } from '../../decorators/space-roles.decorator';
+import { RequestWithMember } from '../../interfaces/request.interface';
 
 @Injectable()
 export class SpaceRolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const spaceRoles: SpaceRole[] = this.reflector.getAllAndOverride<
       SpaceRole[]
     >(SPACE_ROLES_KEY, [context.getHandler(), context.getClass()]);
-    if (!spaceRoles) return true;
+    if (spaceRoles.length === 0) return true;
 
-    const request = context.switchToHttp().getRequest();
+    const request: RequestWithMember = context.switchToHttp().getRequest();
 
     return this.validateRequest(request, spaceRoles);
   }
 
-  private validateRequest(request, spaceRoles: SpaceRole[]): boolean {
-    const { member }: { member: Member } = request;
+  private validateRequest(request: RequestWithMember, spaceRoles: SpaceRole[]): boolean {
+    const { member }: RequestWithMember = request;
     if (!member) throw new InternalServerErrorException('Member not found');
 
     return this.validateRoles(member, spaceRoles);
