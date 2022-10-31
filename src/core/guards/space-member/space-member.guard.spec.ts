@@ -59,7 +59,7 @@ describe('SpaceMemberGuard', () => {
       );
     });
 
-    it('should throw an InternalServerErrorException if there is not a member in the request object', async () => {
+    it('should throw an InternalServerErrorException if there is not a user in the request object', async () => {
       requestObjectMock.user = undefined;
 
       const execute = async () => await guard.canActivate(executionContextMock);
