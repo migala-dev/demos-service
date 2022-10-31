@@ -25,7 +25,10 @@ export class SpaceRolesGuard implements CanActivate {
     return this.validateRequest(request, spaceRoles);
   }
 
-  private validateRequest(request: RequestWithMember, spaceRoles: SpaceRole[]): boolean {
+  private validateRequest(
+    request: RequestWithMember,
+    spaceRoles: SpaceRole[],
+  ): boolean {
     const { member }: RequestWithMember = request;
     if (!member) throw new InternalServerErrorException('Member not found');
 
