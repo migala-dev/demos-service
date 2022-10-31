@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
+import { InternalServerErrorException } from '@nestjs/common';
 
 import { createSpyObj } from 'jest-createspyobj';
 import { mock } from 'jest-mock-extended';
@@ -14,7 +15,8 @@ import { MembersService } from '../../database/services/member.service';
 import { SpacesService } from '../../database/services/space.service';
 import { Member } from '../../database/entities/member.entity';
 import { Space } from '../../database/entities/space.entity';
-import { InternalServerErrorException } from '@nestjs/common';
+import { Params } from '../../interfaces/params.interface';
+import { SpaceMemberRequest } from '../../interfaces/request.interface';
 import {
   spaceMockFactory,
   memberMockFactory,
@@ -35,14 +37,14 @@ describe('SpaceMemberGuard', () => {
   describe('canActivate method', () => {
     let executionContextMock: jest.Mocked<ExecutionContext>;
     let httpArgumentsHost: jest.Mocked<HttpArgumentsHost>;
-    let requestObjectMock: jest.Mocked<any>;
+    let requestObjectMock: jest.Mocked<SpaceMemberRequest<Params>>;
 
     let chance: Chance.Chance;
 
     beforeEach(() => {
       executionContextMock = mock<ExecutionContext>();
       httpArgumentsHost = mock<HttpArgumentsHost>();
-      requestObjectMock = mock<any>();
+      requestObjectMock = mock<SpaceMemberRequest<Params>>();
 
       chance = new Chance();
 

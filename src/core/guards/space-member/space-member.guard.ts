@@ -11,8 +11,9 @@ import { User } from '../../database/entities/user.entity';
 import { MembersService } from '../../database/services/member.service';
 import { Space } from '../../database/entities/space.entity';
 import { SpacesService } from '../../database/services/space.service';
-import { UnauthorizedException } from '@nestjs/common';
-import { RequestWithUser, RequestPlus } from '../../models/request.model';
+import { UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { SpaceMemberRequest } from '../../interfaces/request.interface';
+import { Params } from '../../interfaces/params.interface';
 
 @Injectable()
 export class SpaceMemberGuard implements CanActivate {
@@ -22,36 +23,28 @@ export class SpaceMemberGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request: SpaceMemberRequest<Params> = context.switchToHttp().getRequest();
 
-    const { space, member } = await this.validateRequest(
-      request.params,
-      request.user,
-    );
-
-    request.space = space;
-    request.member = member;
-
-    return true;
+    return await this.validateRequest(request);
   }
 
   private async validateRequest(
-    params: { spaceId: string },
-    user: User,
-  ): Promise<{ space: Space; member: Member }> {
-    const { spaceId } = params;
+    request: SpaceMemberRequest<Params>,
+  ): Promise<boolean> {
+    const { spaceId } = request.params;
     const spaceIdMock = '63c928ab-d59f-4ac3-b4e3-5d4080302123';
 
-    //const { user }: { user: User } = request;
-    //if (!user) 
+    const { user }: { user: User } = request;
+    if (!user) throw new InternalServerErrorException('User not found');
+
     const userMock: User = new User();
     userMock.userId = '8a3b0ece-cd25-4c81-ab91-0abacdf9357e';
 
-    const space = await this.getSpace(spaceIdMock);
+    request.space = await this.getSpace(spaceIdMock);
 
-    const member = await this.getMember(userMock.userId, spaceIdMock);
+    request.member = await this.getMember(userMock.userId, spaceIdMock);
 
-    return { space, member };
+    return true;
   }
 
   private async getSpace(spaceId: string): Promise<Space> {
