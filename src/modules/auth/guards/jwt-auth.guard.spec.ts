@@ -2,6 +2,7 @@ import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
 import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { TestingModule, Test } from '@nestjs/testing';
+import { AuthGuard } from '@nestjs/passport';
 
 import { createSpyObj } from 'jest-createspyobj';
 
@@ -21,22 +22,25 @@ describe('JwtAuthGuard', () => {
 
     guard = module.get<JwtAuthGuard>(JwtAuthGuard);
 
-    reflectorSpy.getAllAndOverride.mockReturnValue(true);
-
     context = new ExecutionContextHost([]);
   });
 
   describe('canActive method', () => {
-    it('should get metadata about if the enpoint is public or not', () => {
-      guard.canActivate(context);
-
-      expect(reflectorSpy.getAllAndOverride).toHaveBeenCalledTimes(1);
-    });
-
     it('should return true if the endpoint is public', () => {
+      reflectorSpy.getAllAndOverride.mockReturnValue(true);
+
       const result = guard.canActivate(context);
 
       expect(result).toBeTruthy();
+    });
+
+    it('should return false if the endpoint is not public', () => {
+      reflectorSpy.getAllAndOverride.mockReturnValue(false);
+      jest.spyOn(AuthGuard('jwt').prototype, 'canActivate').mockReturnValue(false);
+
+      const result = guard.canActivate(context);
+
+      expect(result).not.toBeTruthy();
     });
   });
 });
