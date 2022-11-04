@@ -5,6 +5,7 @@ import { createSpyObj } from 'jest-createspyobj';
 import { UserController } from './user.controller';
 import { User } from '../../../../core/database/entities/user.entity';
 import { UserService } from './services/user/user.service';
+import { UpdateUserNameDto } from './dtos/update-user-name.dto';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -85,6 +86,41 @@ describe('UserController', () => {
       const result: User = await controller.updateProfilePicture(
         userMock,
         fileMock,
+      );
+
+      expect(result).toStrictEqual(expect.objectContaining(expectedUser));
+    });
+  });
+
+  describe('updateUserName method', () => {
+    let userMock: User;
+
+    beforeEach(() => {
+      userMock = new User();
+      userMock.userId = 'aUserId';
+      userMock.name = 'aName';
+      userMock.phoneNumber = 'aPhoneNumber';
+      userMock.profilePictureKey = 'aProfilePictureKey';
+      userMock.cognitoId = 'aCognitoId';
+      userMock.createdAt = null;
+      userMock.updatedAt = null;
+    });
+
+    it('should return the user with new username', async () => {
+      const newName = 'new aName';
+
+      const updateUserNamedto = new UpdateUserNameDto();
+      updateUserNamedto.name = newName;
+
+      const expectedUser = Object.assign({}, userMock);
+      expectedUser.name = newName;
+
+      userSpyService.updateUserName.mockReturnValue(
+        (async () => expectedUser)(),
+      );
+      const result: User = await controller.updateUserName(
+        userMock,
+        updateUserNamedto,
       );
 
       expect(result).toStrictEqual(expect.objectContaining(expectedUser));

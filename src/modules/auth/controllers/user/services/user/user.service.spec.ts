@@ -149,4 +149,54 @@ describe('UserService', () => {
       );
     });
   });
+
+  describe('updateUserName method', () => {
+    let userMock: User;
+
+    beforeEach(() => {
+      userMock = new User();
+      userMock.userId = 'aUserId';
+      userMock.name = 'aName';
+      userMock.phoneNumber = 'aPhoneNumber';
+      userMock.profilePictureKey = 'aProfilePictureKey';
+      userMock.cognitoId = 'aCognitoId';
+      userMock.createdAt = null;
+      userMock.updatedAt = null;
+    });
+
+    it('should return the user with new username', async () => {
+      const newName = 'new aName';
+  
+      const expectedUser = Object.assign({}, userMock);
+      expectedUser.name = newName;
+      usersSpyService.updateUserName.mockReturnValue(
+        (async () => expectedUser)(),
+      );
+
+      const result: User = await service.updateUserName(
+        userMock,
+        newName,
+      );
+  
+      expect(result).toStrictEqual(expect.objectContaining(expectedUser));
+    });
+
+    it('should throw a EvalError if name is empty', async () => {
+      const newName = '';
+  
+      const expectedUser = Object.assign({}, userMock);
+      expectedUser.name = newName;
+      usersSpyService.updateUserName.mockReturnValue(
+        (async () => expectedUser)(),
+      );
+
+      const execute = async () =>
+        await service.updateUserName(
+          userMock,
+          newName,
+        );
+  
+      await expect(execute).rejects.toThrowError(EvalError);
+    });
+  });
 });
