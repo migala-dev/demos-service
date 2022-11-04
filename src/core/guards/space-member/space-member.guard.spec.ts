@@ -15,7 +15,7 @@ import { MembersService } from '../../database/services/member.service';
 import { SpacesService } from '../../database/services/space.service';
 import { Member } from '../../database/entities/member.entity';
 import { Space } from '../../database/entities/space.entity';
-import { Params } from '../../interfaces/params.interface';
+import { ParamsWithSpaceId } from '../../interfaces/params.interface';
 import { SpaceMemberRequest } from '../../interfaces/request.interface';
 import {
   spaceMockFactory,
@@ -37,14 +37,14 @@ describe('SpaceMemberGuard', () => {
   describe('canActivate method', () => {
     let executionContextMock: jest.Mocked<ExecutionContext>;
     let httpArgumentsHost: jest.Mocked<HttpArgumentsHost>;
-    let requestObjectMock: jest.Mocked<SpaceMemberRequest<Params>>;
+    let requestObjectMock: jest.Mocked<SpaceMemberRequest<ParamsWithSpaceId>>;
 
     let chance: Chance.Chance;
 
     beforeEach(() => {
       executionContextMock = mock<ExecutionContext>();
       httpArgumentsHost = mock<HttpArgumentsHost>();
-      requestObjectMock = mock<SpaceMemberRequest<Params>>();
+      requestObjectMock = mock<SpaceMemberRequest<ParamsWithSpaceId>>();
 
       chance = new Chance();
 
