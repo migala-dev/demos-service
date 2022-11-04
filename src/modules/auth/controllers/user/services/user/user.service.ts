@@ -16,6 +16,7 @@ export class UserService {
     user: User,
     name: string,
   ): Promise<User> {
+    if (!name) throw new EvalError('User name is empty');
     return this.usersService.updateUserName(user.userId, name);
   }
 
