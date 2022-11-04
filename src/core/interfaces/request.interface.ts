@@ -23,3 +23,6 @@ export interface SpaceMemberRequest<T>
     RequestWithParams<T>,
     RequestWithSpace,
     RequestWithMember {}
+
+export interface SpaceAndMemberRequest
+  extends RequestWithSpace, RequestWithMember {}
