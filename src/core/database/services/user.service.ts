@@ -31,4 +31,8 @@ export class UsersService {
   private getPhoneWithoutExtension(phoneNumber: string): string {
     return phoneNumber.substr(phoneNumber.length - 10);
   }
+
+  public saveUser({ ...user }: User): Promise<User> {
+    return this.usersRepository.save(user);
+  }
 }

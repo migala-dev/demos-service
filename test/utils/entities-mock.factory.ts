@@ -1,5 +1,6 @@
 import { Space } from '../../src/core/database/entities/space.entity';
 import { Member } from '../../src/core/database/entities/member.entity';
+import { User } from '../../src/core/database/entities/user.entity';
 
 export const spaceMockFactory = async (chance: Chance.Chance) => {
   const spaceMock: Space = new Space();
@@ -30,4 +31,15 @@ export const memberMockFactory = async (chance: Chance.Chance) => {
   memberMock.updatedBy = memberMock.createdBy;
 
   return memberMock;
+};
+
+export const userMockFactory = async (chance: Chance.Chance) => {
+  const userMock: User = new User();
+  userMock.userId = chance.string();
+  userMock.name = chance.name();
+  userMock.phoneNumber = chance.phone({ mobile: true });
+  userMock.profilePictureKey = chance.string();
+  userMock.cognitoId = chance.string();
+
+  return userMock;
 };
