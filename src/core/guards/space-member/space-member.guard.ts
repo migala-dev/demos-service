@@ -15,7 +15,7 @@ import { Space } from '../../database/entities/space.entity';
 import { SpacesService } from '../../database/services/space.service';
 import { SpaceMemberRequest } from '../../interfaces/request.interface';
 import { ParamsWithSpaceId } from '../../interfaces/params.interface';
-import { RequestWithUser } from '../../../../dist/core/interfaces/request.interface';
+import { RequestWithUser } from '../../interfaces/request.interface';
 
 @Injectable()
 export class SpaceMemberGuard implements CanActivate {
