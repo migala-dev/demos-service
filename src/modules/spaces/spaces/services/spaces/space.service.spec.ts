@@ -188,7 +188,9 @@ describe('SpacesService', () => {
         spaceInfoMock,
       );
 
-      expect(result).toStrictEqual(expect.objectContaining(expectedUpdatedSpace));
+      expect(result).toStrictEqual(
+        expect.objectContaining(expectedUpdatedSpace),
+      );
     });
   });
 });

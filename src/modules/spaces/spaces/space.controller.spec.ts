@@ -136,7 +136,7 @@ describe('SpacesController', () => {
     it('should update space info', async () => {
       const expectedUpdateSpaceInfo: UpdateSpaceInfoModel = {
         ...bodyMock,
-      }
+      };
 
       await controller.updateSpaceInfo(bodyMock, requestMock);
 
@@ -158,7 +158,8 @@ describe('SpacesController', () => {
       const expectedUpdatedSpace: Space = new Space();
       expectedUpdatedSpace.name = updatedSpaceMock.name;
       expectedUpdatedSpace.description = updatedSpaceMock.description;
-      expectedUpdatedSpace.approvalPercentage = updatedSpaceMock.approvalPercentage;
+      expectedUpdatedSpace.approvalPercentage =
+        updatedSpaceMock.approvalPercentage;
       expectedUpdatedSpace.participationPercentage =
         updatedSpaceMock.participationPercentage;
       spaceSpyService.updateSpaceInfo.mockReturnValue(
@@ -167,7 +168,9 @@ describe('SpacesController', () => {
 
       const result = await controller.updateSpaceInfo(bodyMock, requestMock);
 
-      expect(result).toStrictEqual(expect.objectContaining(expectedUpdatedSpace));
+      expect(result).toStrictEqual(
+        expect.objectContaining(expectedUpdatedSpace),
+      );
     });
   });
 });
