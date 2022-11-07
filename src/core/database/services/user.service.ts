@@ -14,6 +14,10 @@ export class UsersService {
     return this.usersRepository.findOneBy({ cognitoId });
   }
 
+  public findOneByUserId(userId: string): Promise<User> {
+    return this.usersRepository.findOneBy({ userId });
+  }
+
   public findOneByPhoneNumber(phoneNumber: string): Promise<User> {
     return this.usersRepository.findOneBy({ phoneNumber: Like(`%${this.getPhoneWithoutExtension(phoneNumber)}`) });
   }
@@ -35,5 +39,11 @@ export class UsersService {
   public updatePictureKey(userId: string, profilePictureKey: string): Promise<UpdateResult> {
     const user = this.usersRepository.create({ profilePictureKey });
     return this.usersRepository.update(userId, user);
+  }
+
+  public async updateUserName(userId: string, name:string): Promise<User> {
+    const user = this.usersRepository.create({ name });
+    await this.usersRepository.update(userId, user);
+    return this.findOneByUserId(userId);
   }
 }

@@ -12,6 +12,14 @@ export class UserService {
     private readonly usersService: UsersService,
   ) {}
 
+  public async updateUserName(
+    user: User,
+    name: string,
+  ): Promise<User> {
+    if (!name) throw new EvalError('User name is empty');
+    return this.usersService.updateUserName(user.userId, name);
+  }
+
   public async uploadAvatarImage(
     user: User,
     file: Express.Multer.File,
