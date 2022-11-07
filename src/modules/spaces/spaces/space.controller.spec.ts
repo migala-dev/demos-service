@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { createSpyObj } from 'jest-createspyobj';
+import { mock } from 'jest-mock-extended';
+import { Chance } from 'chance';
 
 import { SpaceController } from './space.controller';
 import { User } from '../../../core/database/entities/user.entity';
@@ -10,13 +12,30 @@ import { SpaceModel } from './models/space.model';
 import { CreateSpaceResponse } from './response/create.response';
 import { Space } from '../../../core/database/entities/space.entity';
 import { Member } from '../../../core/database/entities/member.entity';
+import { UpdateSpaceInfoDto } from './dtos/update-space-info.dto';
+import { SpaceMemberGuard } from '../../../core/guards/space-member/space-member.guard';
+import { SpaceRolesGuard } from '../../../core/guards/space-roles/space-roles.guard';
+import { RequestWithSpace } from '../../../core/interfaces/request.interface';
+import {
+  userMockFactory,
+  spaceMockFactory,
+} from '../../../../test/utils/entities-mock.factory';
+import { UpdateSpaceInfoModel } from './models/update-space-info.model';
 
 describe('SpacesController', () => {
   let controller: SpaceController;
   let spaceSpyService: jest.Mocked<SpaceService>;
+  let spaceMemberSpyGuard: jest.Mocked<SpaceMemberGuard>;
+  let spaceRolesSpyGuard: jest.Mocked<SpaceRolesGuard>;
+
+  let chance: Chance.Chance;
 
   beforeEach(async () => {
     spaceSpyService = createSpyObj(SpaceService);
+    spaceMemberSpyGuard = createSpyObj(SpaceMemberGuard);
+    spaceRolesSpyGuard = createSpyObj(SpaceRolesGuard);
+
+    chance = new Chance();
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SpaceController],
@@ -27,7 +46,12 @@ describe('SpacesController', () => {
           useValue: spaceSpyService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(SpaceMemberGuard)
+      .useValue(spaceMemberSpyGuard)
+      .overrideGuard(SpaceRolesGuard)
+      .useValue(spaceRolesSpyGuard)
+      .compile();
 
     controller = module.get<SpaceController>(SpaceController);
 
@@ -82,6 +106,64 @@ describe('SpacesController', () => {
       expect(result.member).toStrictEqual(
         expect.objectContaining(createSpaceResponseMock.member),
       );
+    });
+  });
+
+  describe('updateSpaceInfo method', () => {
+    let bodyMock: UpdateSpaceInfoDto;
+    let userMock: User;
+    let spaceMock: Space;
+    let requestMock: RequestWithSpace;
+
+    beforeEach(async () => {
+      bodyMock = {
+        name: chance.name(),
+        description: chance.paragraph({ sentences: 1 }),
+        approvalPercentage: chance.integer({ min: 51, max: 100 }),
+        participationPercentage: chance.integer({ min: 51, max: 100 }),
+      };
+      userMock = await userMockFactory(chance);
+      spaceMock = await spaceMockFactory(chance);
+      requestMock = mock<RequestWithSpace>();
+      requestMock.user = userMock;
+      requestMock.space = spaceMock;
+
+      spaceSpyService.updateSpaceInfo.mockReturnValue(
+        (async () => ({} as Space))(),
+      );
+    });
+
+    it('should update space info', async () => {
+      await controller.updateSpaceInfo(bodyMock, requestMock);
+
+      expect(spaceSpyService.updateSpaceInfo).toBeCalledTimes(1);
+      expect(spaceSpyService.updateSpaceInfo).toBeCalledWith(
+        userMock,
+        spaceMock,
+        { ...bodyMock } as UpdateSpaceInfoModel,
+      );
+    });
+
+    it('should return updated space', async () => {
+      const updatedSpaceMock: Space = await spaceMockFactory(chance);
+      updatedSpaceMock.name = bodyMock.name;
+      updatedSpaceMock.description = bodyMock.description;
+      updatedSpaceMock.approvalPercentage = bodyMock.approvalPercentage;
+      updatedSpaceMock.participationPercentage =
+        bodyMock.participationPercentage;
+      const expectedSpace: Space = new Space();
+      expectedSpace.name = updatedSpaceMock.name;
+      expectedSpace.description = updatedSpaceMock.description;
+      expectedSpace.approvalPercentage = updatedSpaceMock.approvalPercentage;
+      expectedSpace.participationPercentage =
+        updatedSpaceMock.participationPercentage;
+      spaceSpyService.updateSpaceInfo.mockReturnValue(
+        (async () => updatedSpaceMock)(),
+      );
+
+      const result = await controller.updateSpaceInfo(bodyMock, requestMock);
+
+      expect(result).toStrictEqual(expect.objectContaining(expectedSpace));
     });
   });
 });
