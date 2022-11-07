@@ -171,12 +171,12 @@ describe('SpacesService', () => {
       updatedSpaceMock.approvalPercentage = updatedSpaceMock.approvalPercentage;
       updatedSpaceMock.participationPercentage =
         updatedSpaceMock.participationPercentage;
-      const expectedSpaceMock: Space = new Space();
-      expectedSpaceMock.name = updatedSpaceMock.name;
-      expectedSpaceMock.description = updatedSpaceMock.description;
-      expectedSpaceMock.approvalPercentage =
+      const expectedUpdatedSpace: Space = new Space();
+      expectedUpdatedSpace.name = updatedSpaceMock.name;
+      expectedUpdatedSpace.description = updatedSpaceMock.description;
+      expectedUpdatedSpace.approvalPercentage =
         updatedSpaceMock.approvalPercentage;
-      expectedSpaceMock.participationPercentage =
+      expectedUpdatedSpace.participationPercentage =
         updatedSpaceMock.participationPercentage;
       spacesSpyService.findOneById.mockReturnValue(
         (async () => updatedSpaceMock)(),
@@ -188,7 +188,7 @@ describe('SpacesService', () => {
         spaceInfoMock,
       );
 
-      expect(result).toStrictEqual(expect.objectContaining(expectedSpaceMock));
+      expect(result).toStrictEqual(expect.objectContaining(expectedUpdatedSpace));
     });
   });
 });

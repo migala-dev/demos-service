@@ -134,13 +134,17 @@ describe('SpacesController', () => {
     });
 
     it('should update space info', async () => {
+      const expectedUpdateSpaceInfo: UpdateSpaceInfoModel = {
+        ...bodyMock,
+      }
+
       await controller.updateSpaceInfo(bodyMock, requestMock);
 
       expect(spaceSpyService.updateSpaceInfo).toBeCalledTimes(1);
       expect(spaceSpyService.updateSpaceInfo).toBeCalledWith(
         userMock,
         spaceMock,
-        { ...bodyMock } as UpdateSpaceInfoModel,
+        expectedUpdateSpaceInfo,
       );
     });
 
@@ -151,11 +155,11 @@ describe('SpacesController', () => {
       updatedSpaceMock.approvalPercentage = bodyMock.approvalPercentage;
       updatedSpaceMock.participationPercentage =
         bodyMock.participationPercentage;
-      const expectedSpace: Space = new Space();
-      expectedSpace.name = updatedSpaceMock.name;
-      expectedSpace.description = updatedSpaceMock.description;
-      expectedSpace.approvalPercentage = updatedSpaceMock.approvalPercentage;
-      expectedSpace.participationPercentage =
+      const expectedUpdatedSpace: Space = new Space();
+      expectedUpdatedSpace.name = updatedSpaceMock.name;
+      expectedUpdatedSpace.description = updatedSpaceMock.description;
+      expectedUpdatedSpace.approvalPercentage = updatedSpaceMock.approvalPercentage;
+      expectedUpdatedSpace.participationPercentage =
         updatedSpaceMock.participationPercentage;
       spaceSpyService.updateSpaceInfo.mockReturnValue(
         (async () => updatedSpaceMock)(),
@@ -163,7 +167,7 @@ describe('SpacesController', () => {
 
       const result = await controller.updateSpaceInfo(bodyMock, requestMock);
 
-      expect(result).toStrictEqual(expect.objectContaining(expectedSpace));
+      expect(result).toStrictEqual(expect.objectContaining(expectedUpdatedSpace));
     });
   });
 });
