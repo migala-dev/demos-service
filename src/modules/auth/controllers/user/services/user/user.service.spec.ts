@@ -164,7 +164,7 @@ describe('UserService', () => {
       userMock.updatedAt = null;
     });
 
-    it('should return the user with new username', async () => {
+    it('should return the user with new name', async () => {
       const newName = 'new aName';
   
       const expectedUser = Object.assign({}, userMock);
