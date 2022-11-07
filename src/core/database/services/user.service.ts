@@ -31,4 +31,9 @@ export class UsersService {
   private getPhoneWithoutExtension(phoneNumber: string): string {
     return phoneNumber.substr(phoneNumber.length - 10);
   }
+
+  public updatePictureKey(userId: string, profilePictureKey: string): Promise<UpdateResult> {
+    const user = this.usersRepository.create({ profilePictureKey });
+    return this.usersRepository.update(userId, user);
+  }
 }
