@@ -32,10 +32,6 @@ export class UsersService {
     return phoneNumber.substr(phoneNumber.length - 10);
   }
 
-  public saveUser({ ...user }: User): Promise<User> {
-    return this.usersRepository.save(user);
-  }
-
   public updatePictureKey(userId: string, profilePictureKey: string): Promise<UpdateResult> {
     const user = this.usersRepository.create({ profilePictureKey });
     return this.usersRepository.update(userId, user);
