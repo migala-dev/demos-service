@@ -3,7 +3,8 @@ import { Body, Controller, HttpCode, Post, HttpStatus } from '@nestjs/common';
 import { SpaceService } from './services/spaces/space.service';
 import { SpaceDto } from './dtos/space.dto';
 import { CreateSpaceResponse } from './response/create.response';
-import { SpaceModel } from './models/space.model';
+import { UserFromRequest } from '../../../core/decorators/auth/user-from-request/user-from-request.decorator';
+import { User } from '../../../core/database/entities/user.entity';
 
 @Controller('spaces')
 export class SpaceController {
@@ -12,11 +13,15 @@ export class SpaceController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   public async create(
+    @UserFromRequest() { userId }: User,
     @Body() spaceDto: SpaceDto,
   ): Promise<CreateSpaceResponse> {
-    const userIdMock = '8a3b0ece-cd25-4c81-ab91-0abacdf9357e';
-    const newSpace: SpaceModel = { ...spaceDto };
-
-    return this.spaceService.createSpaceAndOwnerMember(newSpace, userIdMock);
+    return this.spaceService.createSpaceAndOwnerMember(
+      userId,
+      spaceDto.name,
+      spaceDto.description,
+      spaceDto.approvalPercentage,
+      spaceDto.participationPercentage,
+    );
   }
 }
