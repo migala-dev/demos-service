@@ -149,17 +149,17 @@ describe('AuthService', () => {
     });
 
     it('should be called with a userId and a deviceId of type string', async () => {
-      jest.spyOn(service, 'registerUserDevice');
+      const registerUserDeviceSpyMethod = jest.spyOn(service, 'registerUserDevice');
 
       await service.registerUserDevice(userId, deviceId);
 
-      expect(service.registerUserDevice).toHaveBeenCalledWith(userId, deviceId);
+      expect(registerUserDeviceSpyMethod).toHaveBeenCalledWith(userId, deviceId);
     });
 
-    it('should calld createOrUpdate method from UserDevicesService', async () => {
+    it('should be called UserDevicesService createOrUpdate method', async () => {
       await service.registerUserDevice(userId, deviceId);
 
-      expect(userDevicesSpyService.createOrUpdate).toHaveBeenCalledTimes(1);
+      expect(userDevicesSpyService.createOrUpdate).toHaveBeenCalled();
     });
 
     it('should return a UserDevice instance', async () => {
