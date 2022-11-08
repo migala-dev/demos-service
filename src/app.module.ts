@@ -27,7 +27,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
         database: configService.get<string>('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         ssl: { rejectUnauthorized: false },
-        synchronize: true,
+        synchronize: false,
         namingStrategy: new SnakeNamingStrategy(),
       }),
       inject: [ConfigService],
