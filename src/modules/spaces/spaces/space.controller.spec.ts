@@ -6,7 +6,6 @@ import { SpaceController } from './space.controller';
 import { User } from '../../../core/database/entities/user.entity';
 import { SpaceService } from './services/spaces/space.service';
 import { SpaceDto } from './dtos/space.dto';
-import { SpaceModel } from './models/space.model';
 import { CreateSpaceResponse } from './response/create.response';
 import { Space } from '../../../core/database/entities/space.entity';
 import { Member } from '../../../core/database/entities/member.entity';
@@ -47,16 +46,18 @@ describe('SpacesController', () => {
 
     it('should create a new space', async () => {
       userMock.userId = '';
-      const expectedNewSpace: SpaceModel = { ...spaceDtoMock };
 
-      await controller.create(spaceDtoMock, userMock);
+      await controller.create(userMock, spaceDtoMock);
 
       expect(spaceSpyService.createSpaceAndOwnerMember).toHaveBeenCalledTimes(
         1,
       );
       expect(spaceSpyService.createSpaceAndOwnerMember).toHaveBeenCalledWith(
-        expectedNewSpace,
         userMock.userId,
+        spaceDtoMock.name,
+        spaceDtoMock.description,
+        spaceDtoMock.approvalPercentage,
+        spaceDtoMock.participationPercentage,
       );
     });
 
@@ -72,8 +73,8 @@ describe('SpacesController', () => {
       );
 
       const result: CreateSpaceResponse = await controller.create(
-        spaceDtoMock,
         userMock,
+        spaceDtoMock,
       );
 
       expect(result.space).toStrictEqual(

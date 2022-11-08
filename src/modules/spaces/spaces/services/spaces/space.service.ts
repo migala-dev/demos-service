@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { SpaceModel } from '../../models/space.model';
 import { SpacesService } from '../../../../../core/database/services/space.service';
 import { MembersService } from '../../../../../core/database/services/member.service';
 import { Space } from '../../../../../core/database/entities/space.entity';
@@ -16,10 +15,19 @@ export class SpaceService {
   ) {}
 
   public async createSpaceAndOwnerMember(
-    newSpace: SpaceModel,
     userId: string,
+    name: string,
+    description: string,
+    approvalPercentage: number,
+    participationPercentage: number,
   ): Promise<CreateSpaceResponse> {
-    const space: Space = await this.spacesService.create(newSpace, userId);
+    const space: Space = await this.spacesService.create(
+      userId,
+      name,
+      description,
+      approvalPercentage,
+      participationPercentage,
+    );
 
     const member: Member = await this.membersService.create(
       space.spaceId,
