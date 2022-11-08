@@ -32,7 +32,7 @@ export class UsersService {
     return phoneNumber.substr(phoneNumber.length - 10);
   }
 
-  public saveUser({ ...user }: User): Promise<User> {
+  public saveUser(user: User): Promise<User> {
     return this.usersRepository.save(user);
   }
 }

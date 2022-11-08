@@ -1,35 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { createSpyObj } from 'jest-createspyobj';
-import { mock } from 'jest-mock-extended';
 import { Chance } from 'chance';
 
 import { MemberController } from './member.controller';
 import { MemberService } from './services/member.service';
 import { Member } from '../../../core/database/entities/member.entity';
 import { UsersToInviteDto } from './dtos/users-to-invite.dto';
-import { SpaceAndMemberRequest } from '../../../core/interfaces/request.interface';
+import { UserToInviteDto } from './dtos/user-to-invite.dto';
 import { Space } from '../../../core/database/entities/space.entity';
 import {
   spaceMockFactory,
   memberMockFactory,
 } from '../../../../test/utils/entities-mock.factory';
-import { UserToInviteModel } from '../../../../dist/modules/spaces/members/models/user-to-invite.model';
 import { SpaceRolesGuard } from '../../../core/guards/space-roles/space-roles.guard';
-import { SpaceMemberGuard } from '../../../core/guards/space-member/space-member.guard';
-import { UserToInviteDto } from './dtos/user-to-invite.dto';
+import { IsUserASpaceMemberGuard } from '../../../core/guards/is-user-a-space-member/is-user-a-space-member.guard';
 
 describe('MemberController', () => {
   let controller: MemberController;
   let memberSpyService: jest.Mocked<MemberService>;
-  let spaceMemberSpyGuard: jest.Mocked<SpaceMemberGuard>;
+  let spaceMemberSpyGuard: jest.Mocked<IsUserASpaceMemberGuard>;
   let spaceRolesSpyGuard: jest.Mocked<SpaceRolesGuard>;
 
   let chance: Chance.Chance;
 
   beforeEach(async () => {
     memberSpyService = createSpyObj(MemberService);
-    spaceMemberSpyGuard = createSpyObj(SpaceMemberGuard);
+    spaceMemberSpyGuard = createSpyObj(IsUserASpaceMemberGuard);
     spaceRolesSpyGuard = createSpyObj(SpaceRolesGuard);
 
     chance = new Chance();
@@ -43,7 +40,7 @@ describe('MemberController', () => {
         },
       ],
     })
-      .overrideGuard(SpaceMemberGuard)
+      .overrideGuard(IsUserASpaceMemberGuard)
       .useValue(spaceMemberSpyGuard)
       .overrideGuard(SpaceRolesGuard)
       .useValue(spaceRolesSpyGuard)
@@ -63,7 +60,6 @@ describe('MemberController', () => {
     let memberMock: Member;
     let usersToInviteMock: UserToInviteDto[];
     let bodyMock: UsersToInviteDto;
-    let requestMock: SpaceAndMemberRequest;
 
     beforeEach(async () => {
       [spaceMock, memberMock] = await Promise.all([
@@ -85,23 +81,16 @@ describe('MemberController', () => {
       bodyMock = {
         users: usersToInviteMock,
       };
-      requestMock = mock<SpaceAndMemberRequest>();
-      requestMock.space = spaceMock;
-      requestMock.member = memberMock;
     });
 
     it('should send invitations', async () => {
-      const expectedUsers: UserToInviteModel[] = bodyMock.users.map(
-        (userToInvite) => ({ ...userToInvite } as UserToInviteModel),
-      );
-
-      await controller.sendInvitations(bodyMock, requestMock);
+      await controller.sendInvitations(bodyMock, spaceMock, memberMock);
 
       expect(memberSpyService.sendInvitations).toHaveBeenCalledTimes(1);
       expect(memberSpyService.sendInvitations).toHaveBeenCalledWith(
         spaceMock,
         memberMock,
-        expectedUsers,
+        bodyMock.users,
       );
     });
 
@@ -123,7 +112,8 @@ describe('MemberController', () => {
 
       const result: Member[] = await controller.sendInvitations(
         bodyMock,
-        requestMock,
+        spaceMock,
+        memberMock,
       );
 
       expect(result.length).toBe(usersToInviteMock.length);

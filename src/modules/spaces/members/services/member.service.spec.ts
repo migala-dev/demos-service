@@ -13,7 +13,7 @@ import {
   memberMockFactory,
 } from '../../../../../test/utils/entities-mock.factory';
 import { Space } from '../../../../core/database/entities/space.entity';
-import { UserToInviteModel } from '../../../../../dist/modules/spaces/members/models/user-to-invite.model';
+import { UserToInviteDto } from '../dtos/user-to-invite.dto';
 
 describe('MemberService', () => {
   let service: MemberService;
@@ -57,7 +57,7 @@ describe('MemberService', () => {
   describe('sendInvitations method', () => {
     let spaceMock: Space;
     let memberMock: Member;
-    let usersToInviteMock: UserToInviteModel[];
+    let usersToInviteMock: UserToInviteDto[];
 
     beforeEach(async () => {
       spaceMock = await spaceMockFactory(chance);
@@ -96,6 +96,7 @@ describe('MemberService', () => {
           return invitationCreated;
         },
       );
+      usersSpyService.saveUser.mockReturnValue;
 
       const result: Member[] = await service.sendInvitations(
         spaceMock,

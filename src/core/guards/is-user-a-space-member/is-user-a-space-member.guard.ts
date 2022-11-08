@@ -18,7 +18,7 @@ import { ParamsWithSpaceId } from '../../interfaces/params.interface';
 import { RequestWithUser } from '../../interfaces/request.interface';
 
 @Injectable()
-export class SpaceMemberGuard implements CanActivate {
+export class IsUserASpaceMemberGuard implements CanActivate {
   constructor(
     private readonly membersService: MembersService,
     private readonly spacesService: SpacesService,
@@ -40,30 +40,27 @@ export class SpaceMemberGuard implements CanActivate {
     const { user }: RequestWithUser = request;
     if (!user) throw new InternalServerErrorException('User not found');
 
-    request.space = await this.getSpaceAndValidate(spaceId);
+    request.space = await this.findSpace(spaceId);
+    if (!request.space) throw new BadRequestException('Space not found');
 
-    request.member = await this.getMemberAndValidate(user.userId, spaceId);
+    request.member = await this.findMember(user.userId, spaceId);
+    if (!request.member)
+      throw new UnauthorizedException('This user is not member of this space');
 
     return true;
   }
 
-  private async getSpaceAndValidate(spaceId: string): Promise<Space> {
+  private async findSpace(spaceId: string): Promise<Space> {
     const space: Space = await this.spacesService.findOneById(spaceId);
-    if (!space) throw new BadRequestException('Space not found');
 
     return space;
   }
 
-  private async getMemberAndValidate(
-    userId: string,
-    spaceId: string,
-  ): Promise<Member> {
+  private async findMember(userId: string, spaceId: string): Promise<Member> {
     const member: Member = await this.membersService.findOneByUserIdAndSpaceId(
       userId,
       spaceId,
     );
-    if (!member)
-      throw new UnauthorizedException('This user is not member of this space');
 
     return member;
   }

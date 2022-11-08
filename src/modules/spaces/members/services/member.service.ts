@@ -3,10 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { Space } from '../../../../core/database/entities/space.entity';
 import { Member } from '../../../../core/database/entities/member.entity';
 import { User } from '../../../../core/database/entities/user.entity';
-import { UserToInviteModel } from '../models/user-to-invite.model';
 import { UsersService } from '../../../../core/database/services/user.service';
 import { MembersService } from '../../../../core/database/services/member.service';
 import { SpaceRole, InvitationStatus } from '../../../../core/enums';
+import { UserToInviteDto } from '../dtos/user-to-invite.dto';
 
 @Injectable()
 export class MemberService {
@@ -18,7 +18,7 @@ export class MemberService {
   public async sendInvitations(
     space: Space,
     member: Member,
-    usersToInvite: UserToInviteModel[],
+    usersToInvite: UserToInviteDto[],
   ): Promise<Member[]> {
     const createdBy: string = member.userId;
     const invitations: Member[] = await Promise.all(
@@ -32,7 +32,7 @@ export class MemberService {
   }
 
   private async createInvitation(
-    userToInvite: UserToInviteModel,
+    userToInvite: UserToInviteDto,
     spaceId: string,
     createdBy: string,
   ): Promise<Member> {
@@ -47,16 +47,25 @@ export class MemberService {
   }
 
   private async getUserId(phoneNumber: string): Promise<string> {
-    const user = await this.usersService.findOneByPhoneNumber(phoneNumber);
+    const user: User = await this.usersService.findOneByPhoneNumber(
+      phoneNumber,
+    );
     if (!user) {
-      const userCreated = await this.usersService.saveUser({
-        phoneNumber,
-      } as User);
+      const newUser: User = await this.createNewUser(phoneNumber);
 
-      return userCreated.userId;
+      return newUser.userId;
     }
 
     return user.userId;
+  }
+
+  private async createNewUser(phoneNumber: string) {
+    const user: User = new User();
+    user.phoneNumber = phoneNumber;
+
+    const newUser: User = await this.usersService.saveUser(user);
+
+    return newUser;
   }
 
   private async getMember(
@@ -69,17 +78,31 @@ export class MemberService {
       spaceId,
     );
     if (!member) {
-      const memberCreated = await this.membersService.create(
+      const newMember: Member = await this.createNewMember(
         spaceId,
         userId,
-        InvitationStatus.SENDED,
-        SpaceRole.WORKER,
         createdBy,
       );
 
-      return memberCreated;
+      return newMember;
     }
 
     return member;
+  }
+
+  private async createNewMember(
+    spaceId: string,
+    userId: string,
+    createdBy: string,
+  ): Promise<Member> {
+    const newMember = await this.membersService.create(
+      spaceId,
+      userId,
+      InvitationStatus.SENDED,
+      SpaceRole.WORKER,
+      createdBy,
+    );
+
+    return newMember;
   }
 }
