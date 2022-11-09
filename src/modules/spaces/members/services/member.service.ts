@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { Space } from '../../../../core/database/entities/space.entity';
 import { Member } from '../../../../core/database/entities/member.entity';
@@ -23,12 +23,18 @@ export class MemberService {
     const createdBy: string = member.userId;
     const invitations: Member[] = await Promise.all(
       usersToInvite.map(
-        async (userToInvite) =>
-          await this.createInvitation(userToInvite, space.spaceId, createdBy),
+        async (userToInvite) => {
+          try {
+            return await this.createInvitation(userToInvite, space.spaceId, createdBy);
+          } catch (err) {
+            Logger.error(err);
+            return null;
+          }
+        }
       ),
     );
 
-    return invitations;
+    return invitations.filter((invitation) => !!invitation);
   }
 
   private async createInvitation(
@@ -39,12 +45,24 @@ export class MemberService {
     let { userId } = userToInvite;
     const { phoneNumber } = userToInvite;
 
+    if (userId) {
+      await this.validateUserId(userId);
+    }
+
     if (!userId && phoneNumber) {
-      userId = await this.getUserId(phoneNumber);
+      userId = await this.getUserId(phoneNumber)
     }
 
     return this.getMember(spaceId, userId, createdBy);
   }
+
+  private async validateUserId(userId: string): Promise<string> {
+    const user: User = await this.usersService.findOneById(userId) ;
+    if (user)
+      throw new BadRequestException(`User with ${userId} not found`);
+
+    return user.userId;
+  } 
 
   private async getUserId(phoneNumber: string): Promise<string> {
     const user: User = await this.usersService.findOneByPhoneNumber(

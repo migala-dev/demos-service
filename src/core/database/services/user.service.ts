@@ -35,4 +35,8 @@ export class UsersService {
   public saveUser(user: User): Promise<User> {
     return this.usersRepository.save(user);
   }
+  
+  public findOneById(userId: string) {
+    return this.usersRepository.findOneBy({ userId });
+  } 
 }
