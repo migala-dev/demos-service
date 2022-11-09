@@ -30,4 +30,8 @@ export class MembersService {
 
     return this.membersRepository.save(newMember);
   }
+
+  public findOneByUserIdAndSpaceId(userId: string, spaceId: string) {
+    return this.membersRepository.findOneBy({ userId, spaceId });
+  }
 }

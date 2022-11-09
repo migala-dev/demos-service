@@ -32,8 +32,11 @@ export class UsersService {
     return phoneNumber.substr(phoneNumber.length - 10);
   }
 
-  public updatePictureKey(userId: string, profilePictureKey: string): Promise<UpdateResult> {
-    const user = this.usersRepository.create({ profilePictureKey });
-    return this.usersRepository.update(userId, user);
+  public saveUser(user: User): Promise<User> {
+    return this.usersRepository.save(user);
   }
+  
+  public findOneById(userId: string) {
+    return this.usersRepository.findOneBy({ userId });
+  } 
 }
