@@ -39,4 +39,9 @@ export class UsersService {
   public findOneById(userId: string) {
     return this.usersRepository.findOneBy({ userId });
   } 
+
+  public updatePictureKey(userId: string, profilePictureKey: string): Promise<UpdateResult> {
+    const user = this.usersRepository.create({ profilePictureKey });
+    return this.usersRepository.update(userId, user);
+  }
 }
