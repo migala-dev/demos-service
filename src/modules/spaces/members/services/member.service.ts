@@ -52,7 +52,7 @@ export class MemberService {
     }
 
     if (!userId && phoneNumber) {
-      userId = await this.getAValidUserId(phoneNumber);
+      userId = await this.getValidUserId(phoneNumber);
     }
 
     const member = await this.membersService.findOneByUserIdAndSpaceId(
@@ -80,7 +80,7 @@ export class MemberService {
     return user.userId;
   }
 
-  private async getAValidUserId(phoneNumber: string) {
+  private async getValidUserId(phoneNumber: string): Promise<string> {
     const user: User = await this.usersService.findOneByPhoneNumber(
       phoneNumber,
     );
