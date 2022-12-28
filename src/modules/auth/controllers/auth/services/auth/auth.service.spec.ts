@@ -156,7 +156,7 @@ describe('AuthService', () => {
       expect(service.registerUserDevice).toHaveBeenCalledWith(userId, deviceId);
     });
 
-    it('should called createOrUpdate method from UserDevicesService', async () => {
+    it('should createOrUpdate method from UserDevicesService be called', async () => {
       await service.registerUserDevice(userId, deviceId);
 
       expect(userDevicesSpyService.createOrUpdate).toHaveBeenCalledTimes(1);
