@@ -22,16 +22,18 @@ export class MemberService {
   ): Promise<Member[]> {
     const createdBy: string = member.userId;
     const invitations: Member[] = await Promise.all(
-      usersToInvite.map(
-        async (userToInvite) => {
-          try {
-            return await this.createInvitation(userToInvite, space.spaceId, createdBy);
-          } catch (err) {
-            Logger.error(err);
-            return null;
-          }
+      usersToInvite.map(async (userToInvite) => {
+        try {
+          return await this.createInvitation(
+            userToInvite,
+            space.spaceId,
+            createdBy,
+          );
+        } catch (err) {
+          Logger.error(err);
+          return null;
         }
-      ),
+      }),
     );
 
     return invitations.filter((invitation) => !!invitation);
@@ -50,47 +52,9 @@ export class MemberService {
     }
 
     if (!userId && phoneNumber) {
-      userId = await this.getUserId(phoneNumber)
+      userId = await this.getValidUserId(phoneNumber);
     }
 
-    return this.getMember(spaceId, userId, createdBy);
-  }
-
-  private async validateUserId(userId: string): Promise<string> {
-    const user: User = await this.usersService.findOneById(userId) ;
-    if (user)
-      throw new BadRequestException(`User with ${userId} not found`);
-
-    return user.userId;
-  } 
-
-  private async getUserId(phoneNumber: string): Promise<string> {
-    const user: User = await this.usersService.findOneByPhoneNumber(
-      phoneNumber,
-    );
-    if (!user) {
-      const newUser: User = await this.createNewUser(phoneNumber);
-
-      return newUser.userId;
-    }
-
-    return user.userId;
-  }
-
-  private async createNewUser(phoneNumber: string) {
-    const user: User = new User();
-    user.phoneNumber = phoneNumber;
-
-    const newUser: User = await this.usersService.saveUser(user);
-
-    return newUser;
-  }
-
-  private async getMember(
-    spaceId: string,
-    userId: string,
-    createdBy: string,
-  ): Promise<Member> {
     const member = await this.membersService.findOneByUserIdAndSpaceId(
       userId,
       spaceId,
@@ -108,12 +72,42 @@ export class MemberService {
     return member;
   }
 
+  private async validateUserId(userId: string): Promise<string> {
+    const user: User = await this.usersService.findOneById(userId);
+    if (!user)
+      throw new BadRequestException(`User with ${userId} user id not found`);
+
+    return user.userId;
+  }
+
+  private async getValidUserId(phoneNumber: string): Promise<string> {
+    const user: User = await this.usersService.findOneByPhoneNumber(
+      phoneNumber,
+    );
+    if (!user) {
+      const newUser: User = await this.createNewUser(phoneNumber);
+
+      return newUser.userId;
+    }
+
+    return user.userId;
+  }
+
+  private async createNewUser(phoneNumber: string): Promise<User> {
+    const user: User = new User();
+    user.phoneNumber = phoneNumber;
+
+    const newUser: User = await this.usersService.saveUser(user);
+
+    return newUser;
+  }
+
   private async createNewMember(
     spaceId: string,
     userId: string,
     createdBy: string,
   ): Promise<Member> {
-    const newMember = await this.membersService.create(
+    const newMember: Member = await this.membersService.create(
       spaceId,
       userId,
       InvitationStatus.SENDED,
