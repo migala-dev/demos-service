@@ -5,6 +5,9 @@ import { UserDeviceDto } from './dtos/user-device.dto';
 import { createSpyObj } from 'jest-createspyobj';
 import { UserDevice } from '../../../../core/database/entities/user-device.entity';
 import { User } from '../../../../core/database/entities/user.entity';
+import { LoginResponse } from './response/login.response';
+import { loginConstants } from '../../../../../test/mocks/constants/constants';
+import { LoginDto } from './dtos/login.dto';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -32,8 +35,16 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('Login Call', () => {
-    it('should return the session with a correct phone number', () => {});
+  it('should return the session with a correct phone number', async () => {
+    authSpyService.login.mockReturnValue((async () => ({ session: loginConstants.sessionMockToken } ) as LoginResponse)());
+    const phoneNumber = loginConstants.phoneNumber;
+    const loginDto: LoginDto = {
+      phoneNumber
+    };
+  
+    const response = await controller.login(loginDto);
+
+    expect(response.session).toBe(loginConstants.sessionMockToken);
   });
 
   describe('User Device Call', () => {
@@ -75,6 +86,10 @@ describe('AuthController', () => {
         userMock.userId,
         userDeviceMock.deviceId,
       );
+    });
+
+    it('', async () => {
+
     });
 
     it('should return a UserDevice instance', async () => {

@@ -7,6 +7,8 @@ import { UserDevice } from '../../../../core/database/entities/user-device.entit
 import { UserFromRequest } from '../../../../core/decorators/auth/user-from-request/user-from-request.decorator';
 import { User } from '../../../../core/database/entities/user.entity';
 import { Public } from '../../../../core/decorators/auth/public/public.decorator';
+import { VerifyCodeDto } from './dtos/verify-code.dto';
+import { UserVerified } from './models/user-verified.model';
 
 @Controller('auth')
 export class AuthController {
@@ -17,6 +19,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   public login(@Body() { phoneNumber }: LoginDto): Promise<LoginResponse> {
     return this.authService.login(phoneNumber);
+  }
+
+  @Public()
+  @Post('verify-code')
+  @HttpCode(HttpStatus.OK)
+  public verifyCode(@Body() { phoneNumber, code, session }: VerifyCodeDto): Promise<UserVerified> {
+    return this.authService.verifyCode(phoneNumber, code, session);
   }
 
   @Post('user-device')

@@ -8,10 +8,13 @@ import {
   CognitoUser as AWSCognitoUser,
   ICognitoUserData,
   IAuthenticationCallback,
-  CognitoUserAttribute
+  CognitoUserAttribute,
+  CognitoUserSession,
 } from 'amazon-cognito-identity-js';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { UserVerified } from '../../models/user-verified.model';
+import { Tokens } from '../../models/tokens.model';
 
 @Injectable()
 export class CognitoService {
@@ -25,30 +28,30 @@ export class CognitoService {
     const authenticationDetails = this.getAuthenticationDetails(phoneNumber);
     const cognitoUser = this.getAWSCognitoUser(phoneNumber);
     cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
-    
+
     return new Promise((res, rej) => {
-        const authenticationCallback: IAuthenticationCallback = {
-            customChallenge: async ({ USERNAME: cognitoId }) => {
-                const session = (cognitoUser as any).Session;
-                res(new CognitoUser(session, cognitoId));
-            },
-            onFailure: (err) => {
-                if (this.userNotExist(err)) {
-                    res(CognitoUser.notCreated());
-                } else {
-                    rej(err);
-                }
-            },
-            onSuccess: (): void => {
-                throw new Error('On Cognito success function not implemented.');
-            }
-        };
+      const authenticationCallback: IAuthenticationCallback = {
+        customChallenge: async ({ USERNAME: cognitoId }) => {
+          const session = (cognitoUser as any).Session;
+          res(new CognitoUser(session, cognitoId));
+        },
+        onFailure: (err) => {
+          if (this.userNotExist(err)) {
+            res(CognitoUser.notCreated());
+          } else {
+            rej(err);
+          }
+        },
+        onSuccess: (): void => {
+          throw new Error('On Cognito success function not implemented.');
+        },
+      };
       cognitoUser.initiateAuth(authenticationDetails, authenticationCallback);
     });
   }
 
   public signUp(phoneNumber: string): Promise<string> {
-    const password = uuidv4(); 
+    const password = uuidv4();
     const attributeList = [];
     const dataPhoneNumber = {
       Name: 'phone_number',
@@ -56,18 +59,51 @@ export class CognitoService {
     };
     const attributePhoneNumber = new CognitoUserAttribute(dataPhoneNumber);
     attributeList.push(attributePhoneNumber);
-  
+
     return new Promise((res, rej) => {
-      this.userPool.signUp(phoneNumber, password, attributeList, null, (err, result) => {
-        const cognitoId = result.userSub;
-        if (err) {
+      this.userPool.signUp(
+        phoneNumber,
+        password,
+        attributeList,
+        null,
+        (err, result) => {
+          const cognitoId = result.userSub;
+          if (err) {
+            rej(err);
+          }
+          res(cognitoId);
+        },
+      );
+    });
+  }
+
+  public verifyCode(
+    phoneNumber: string,
+    verificationCode: string,
+    session: string,
+  ): Promise<UserVerified> {
+    const cognitoUser = this.getAWSCognitoUser(phoneNumber);
+    cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
+    (cognitoUser as any).Session = session;
+    return new Promise((res, rej) => {
+      cognitoUser.sendCustomChallengeAnswer(verificationCode, {
+        customChallenge() {
+          const currentSession = (cognitoUser as any).Session;
+          const userVerified = UserVerified.withSession(currentSession);
+          res(userVerified);
+        },
+        onSuccess: (result) => {
+          const tokens = this.getTokenFromSession(result);
+          const bucketName: string = this.config.get('AWS_S3_BUCKET');
+
+          res(new UserVerified(tokens, bucketName));
+        },
+        onFailure: (err) => {
           rej(err);
-        }
-        res(cognitoId);
+        },
       });
     });
-  };
-  
+  }
 
   private intializeUserPool(): void {
     const poolData: ICognitoUserPoolData = {
@@ -77,7 +113,7 @@ export class CognitoService {
     this.userPool = new CognitoUserPool(poolData);
   }
 
-  private userNotExist ({ message }: { message: string }) {
+  private userNotExist({ message }: { message: string }) {
     return message.includes('User does not exist');
   }
 
@@ -94,6 +130,12 @@ export class CognitoService {
       Pool: this.userPool,
     };
     return new AWSCognitoUser(userData);
+  }
+
+  private getTokenFromSession(session: CognitoUserSession): Tokens {
+    const accessToken = session.getAccessToken().getJwtToken();
+    const refreshToken = session.getRefreshToken().getToken();
+
+    return { accessToken, refreshToken };
   };
-  
 }
