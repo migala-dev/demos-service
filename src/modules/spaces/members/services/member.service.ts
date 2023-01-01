@@ -7,12 +7,14 @@ import { UsersService } from '../../../../core/database/services/user.service';
 import { MembersService } from '../../../../core/database/services/member.service';
 import { SpaceRole, InvitationStatus } from '../../../../core/enums';
 import { UserToInviteDto } from '../dtos/user-to-invite.dto';
+import { MemberNotificationService } from '../../../../core/services/notifications/member-notification/member-notification.service';
 
 @Injectable()
 export class MemberService {
   constructor(
     private readonly usersService: UsersService,
     private readonly membersService: MembersService,
+    private readonly memberNotificationService: MemberNotificationService,
   ) {}
 
   public async sendInvitations(
@@ -101,6 +103,9 @@ export class MemberService {
         userId,
         createdBy,
       );
+
+      this.memberNotificationService.newInvitation(spaceId, userId);
+      this.memberNotificationService.memberUpdated(spaceId, newMember.memberId);
 
       return newMember;
     }

@@ -34,4 +34,14 @@ export class MembersService {
   public findOneByUserIdAndSpaceId(userId: string, spaceId: string) {
     return this.membersRepository.findOneBy({ userId, spaceId });
   }
+
+  public findBySpaceIdAndInvitationStatusAccepted(
+    spaceId: string,
+  ): Promise<Member[]> {
+    return this.membersRepository.findBy({
+      spaceId,
+      deleted: false,
+      invitationStatus: InvitationStatus.ACCEPTED,
+    });
+  }
 }

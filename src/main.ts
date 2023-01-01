@@ -7,7 +7,8 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  app.useWebSocketAdapter(new WsAdapter());
+  app.enableCors();
+  app.useWebSocketAdapter(new WsAdapter(app));
 
   await app.listen(3000);
 }
