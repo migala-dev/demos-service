@@ -20,7 +20,6 @@ export class MemberController {
     @SpaceFromRequest() space: Space,
     @MemberFromRequest() member: Member,
   ): Promise<Member[]> {
-    console.log('Send invitations');
     return this.memberService.sendInvitations(space, member, users);
   }
 }
