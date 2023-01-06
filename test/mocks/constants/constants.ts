@@ -7,4 +7,5 @@ export const loginConstants: { [key: string]: string } = {
     correctVerificationCode: '555555',
     accessTokenMock: 'access-token-mock',
     refreshTokenMock: 'refresh-token-mock',
+    newRefreshTokenMock: 'new-refresh-token-mock',
 }

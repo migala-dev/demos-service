@@ -88,8 +88,12 @@ describe('AuthController', () => {
       );
     });
 
-    it('', async () => {
+    it('should call refreshTokens method from AuthService', async () => {
+      const refreshToken = 'refresh-token-mock';
+      await controller.refreshTokens({ refreshToken });
 
+      expect(authSpyService.refreshTokens).toHaveBeenCalledTimes(1);
+      expect(authSpyService.refreshTokens).toHaveBeenCalledWith(refreshToken);
     });
 
     it('should return a UserDevice instance', async () => {

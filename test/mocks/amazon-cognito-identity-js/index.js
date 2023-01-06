@@ -8,4 +8,5 @@ module.exports = {
   AuthenticationDetails: jest.fn().mockImplementation(AuthenticationDetails),
   CognitoUser: jest.fn().mockImplementation(CognitoUser),
   CognitoUserAttribute: jest.fn().mockImplementation(CognitoUserAttribute),
+  CognitoRefreshToken: jest.fn().mockImplementation(({ RefreshToken }) => ({ refreshToken: RefreshToken })),
 };

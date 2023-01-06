@@ -3,6 +3,7 @@ import { CognitoService } from './cognito.service';
 import { ConfigService } from '@nestjs/config';
 import { loginConstants } from '../../../../../../../test/mocks/constants/constants';
 import { UserVerified } from '../../models/user-verified.model';
+import { Tokens } from '../../models/tokens.model';
 
 const bucketName = 'demos-mock-bucket-name';
 
@@ -76,7 +77,7 @@ describe('CognitoService', () => {
     expect(result.bucketName).toBe(undefined);
   });
 
-  it('should return the tokens and bucket Nname if the verification code is correct', async () => {
+  it('should return the tokens and bucket name if the verification code is correct', async () => {
     const phoneNumber = loginConstants.phoneNumber;
     const verificationCode = loginConstants.correctVerificationCode;
     const sessionMockToken = loginConstants.sessionMockToken;
@@ -93,6 +94,8 @@ describe('CognitoService', () => {
     expect(result.bucketName).toBe(bucketName);
   });
 
+ 
+  
   it('should throw an error if it is not the correct session', async () => {
     const phoneNumber = loginConstants.phoneNumber;
     const verificationCode = loginConstants.correctVerificationCode;
@@ -101,6 +104,26 @@ describe('CognitoService', () => {
       await service.verifyCode(phoneNumber, verificationCode, sessionMockToken);
     } catch (err) {
       expect(err.message).toBe('Not a valid session');
+    }
+  });
+  it('should return the accessToken and refreshToken on success', async () => {
+    const refreshToken = loginConstants.refreshTokenMock;
+    const expectedAccessToken = loginConstants.accessTokenMock;
+    const expectedRefreshToken = loginConstants.newRefreshTokenMock;
+
+    const result: Tokens = await service.refreshTokens(refreshToken);
+
+    expect(result.accessToken).toBe(expectedAccessToken);
+    expect(result.refreshToken).toBe(expectedRefreshToken);
+  });
+  
+
+  it('should return an error if the refresh token is not valid', async () => {
+    const refresTokenMock = loginConstants.refreshTokenMock + 'incorrect';
+    try {
+      await service.refreshTokens(refresTokenMock);
+    } catch (err) {
+      expect(err.message).toBe('Invalid Refresh Token');
     }
   });
 });
