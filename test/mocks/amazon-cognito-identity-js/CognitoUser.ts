@@ -17,16 +17,19 @@ function CognitoUser(data) {
   this.sendCustomChallengeAnswer = jest.fn((answerChallenge, callbacks) => {
     if (originalSession !== this.Session) {
       callbacks.onFailure({ message: 'Not a valid session' });
-    } else {
+    } else if(loginConstants.correctVerificationCode === answerChallenge) {
       const tokenObject = {
         getAccessToken: () => ({
-          getJwtToken: () => 'jwt-token-mock',
+          getJwtToken: () => loginConstants.accessTokenMock,
         }),
         getRefreshToken: () => ({
-          getToken: () => 'refresh-token-mock',
+          getToken: () => loginConstants.refreshTokenMock,
         }),
       };
       callbacks.onSuccess(tokenObject);
+    } else {
+      this.Session = loginConstants.secondSessionMockToken;
+      callbacks.customChallenge();
     }
   });
 }
