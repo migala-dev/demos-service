@@ -36,12 +36,15 @@ describe('AuthController', () => {
   });
 
   it('should return the session with a correct phone number', async () => {
-    authSpyService.login.mockReturnValue((async () => ({ session: loginConstants.sessionMockToken } ) as LoginResponse)());
+    authSpyService.login.mockReturnValue(
+      (async () =>
+        ({ session: loginConstants.sessionMockToken } as LoginResponse))(),
+    );
     const phoneNumber = loginConstants.phoneNumber;
     const loginDto: LoginDto = {
-      phoneNumber
+      phoneNumber,
     };
-  
+
     const response = await controller.login(loginDto);
 
     expect(response.session).toBe(loginConstants.sessionMockToken);
@@ -114,7 +117,7 @@ describe('AuthController', () => {
     });
 
     it('should return a UserDevice instance with the same userId and deviceId properties', async () => {
-      const userId: string = 'aUserId';
+      const userId = 'aUserId';
       const expectedResult: UserDevice = new UserDevice();
       expectedResult.deviceId = userDeviceMock.deviceId;
       expectedResult.userId = userId;

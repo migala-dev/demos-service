@@ -15,16 +15,21 @@ export class UsersService {
   }
 
   public findOneByPhoneNumber(phoneNumber: string): Promise<User> {
-    return this.usersRepository.findOneBy({ phoneNumber: Like(`%${this.getPhoneWithoutExtension(phoneNumber)}`) });
+    return this.usersRepository.findOneBy({
+      phoneNumber: Like(`%${this.getPhoneWithoutExtension(phoneNumber)}`),
+    });
   }
 
   public create(phoneNumber: string, cognitoId: string): Promise<InsertResult> {
-    const user = this.usersRepository.create({ phoneNumber, cognitoId  });
+    const user = this.usersRepository.create({ phoneNumber, cognitoId });
     return this.usersRepository.insert(user);
   }
 
-  public updateCognitoId(userId: string, cognitoId: string): Promise<UpdateResult> {
-    const user = this.usersRepository.create({ cognitoId  });
+  public updateCognitoId(
+    userId: string,
+    cognitoId: string,
+  ): Promise<UpdateResult> {
+    const user = this.usersRepository.create({ cognitoId });
     return this.usersRepository.update(userId, user);
   }
 
@@ -35,12 +40,15 @@ export class UsersService {
   public saveUser(user: User): Promise<User> {
     return this.usersRepository.save(user);
   }
-  
+
   public findOneById(userId: string) {
     return this.usersRepository.findOneBy({ userId });
-  } 
+  }
 
-  public updatePictureKey(userId: string, profilePictureKey: string): Promise<UpdateResult> {
+  public updatePictureKey(
+    userId: string,
+    profilePictureKey: string,
+  ): Promise<UpdateResult> {
     const user = this.usersRepository.create({ profilePictureKey });
     return this.usersRepository.update(userId, user);
   }

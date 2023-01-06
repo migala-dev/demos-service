@@ -36,7 +36,9 @@ describe('JwtAuthGuard', () => {
 
     it('should return false if the endpoint is not public', () => {
       reflectorSpy.getAllAndOverride.mockReturnValue(false);
-      jest.spyOn(AuthGuard('jwt').prototype, 'canActivate').mockReturnValue(false);
+      jest
+        .spyOn(AuthGuard('jwt').prototype, 'canActivate')
+        .mockReturnValue(false);
 
       const result = guard.canActivate(context);
 

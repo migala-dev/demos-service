@@ -26,14 +26,18 @@ export class AuthController {
   @Public()
   @Post('verify-code')
   @HttpCode(HttpStatus.OK)
-  public verifyCode(@Body() { phoneNumber, code, session }: VerifyCodeDto): Promise<UserVerified> {
+  public verifyCode(
+    @Body() { phoneNumber, code, session }: VerifyCodeDto,
+  ): Promise<UserVerified> {
     return this.authService.verifyCode(phoneNumber, code, session);
   }
 
   @Public()
   @Post('refresh-tokens')
   @HttpCode(HttpStatus.OK)
-  public refreshTokens(@Body() { refreshToken }: RefreshTokensDto): Promise<Tokens> {
+  public refreshTokens(
+    @Body() { refreshToken }: RefreshTokensDto,
+  ): Promise<Tokens> {
     return this.authService.refreshTokens(refreshToken);
   }
 

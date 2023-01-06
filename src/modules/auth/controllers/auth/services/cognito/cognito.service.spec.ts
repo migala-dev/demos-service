@@ -94,8 +94,6 @@ describe('CognitoService', () => {
     expect(result.bucketName).toBe(bucketName);
   });
 
- 
-  
   it('should throw an error if it is not the correct session', async () => {
     const phoneNumber = loginConstants.phoneNumber;
     const verificationCode = loginConstants.correctVerificationCode;
@@ -116,7 +114,6 @@ describe('CognitoService', () => {
     expect(result.accessToken).toBe(expectedAccessToken);
     expect(result.refreshToken).toBe(expectedRefreshToken);
   });
-  
 
   it('should return an error if the refresh token is not valid', async () => {
     const refresTokenMock = loginConstants.refreshTokenMock + 'incorrect';

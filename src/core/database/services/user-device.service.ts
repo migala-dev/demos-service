@@ -9,11 +9,11 @@ import { UserDevice } from '../entities/user-device.entity';
 export class UserDevicesService {
   constructor(
     @InjectRepository(UserDevice)
-    private readonly userDevicesRepository: Repository<UserDevice>
+    private readonly userDevicesRepository: Repository<UserDevice>,
   ) {}
 
   public createOrUpdate(userId: string, deviceId: string): Promise<UserDevice> {
-    const userDeviceToCreateOrUpdate: UserDevice = new UserDevice() ;
+    const userDeviceToCreateOrUpdate: UserDevice = new UserDevice();
     userDeviceToCreateOrUpdate.userId = userId;
     userDeviceToCreateOrUpdate.deviceId = deviceId;
 

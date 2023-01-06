@@ -149,12 +149,12 @@ export class CognitoService {
 
   private getCognitoRefreshToken(refreshToken: string): CognitoRefreshToken {
     return new CognitoRefreshToken({ RefreshToken: refreshToken });
-  };
+  }
 
   private getTokenFromSession(session: CognitoUserSession): Tokens {
     const accessToken = session.getAccessToken().getJwtToken();
     const refreshToken = session.getRefreshToken().getToken();
 
     return { accessToken, refreshToken };
-  };
+  }
 }
