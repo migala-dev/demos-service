@@ -9,6 +9,7 @@ import { User } from '../../../../../../core/database/entities/user.entity';
 import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
 import { UserVerified } from '../../models/user-verified.model';
+import { Tokens } from '../../models/tokens.model';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -187,10 +188,23 @@ describe('AuthService', () => {
 
       const result: UserVerified = await service.verifyCode(phoneNumber, code, session);
 
-      expect(expectedUserVerified).toBe(expectedUserVerified);
+      expect(expectedUserVerified).toBe(result);
       expect(cognitoSpyService.verifyCode.mock.calls[0][0]).toBe(phoneNumber);
       expect(cognitoSpyService.verifyCode.mock.calls[0][1]).toBe(code);
       expect(cognitoSpyService.verifyCode.mock.calls[0][2]).toBe(session);
+    });
+
+    it('should refresh token', async () => {
+      const expectedTokens = new Tokens();
+      const refreshToken = 'refresh-token-mock';
+      cognitoSpyService.refreshTokens.mockReturnValue((async () => {
+        return expectedTokens;
+      })());
+
+      const result: Tokens = await service.refreshTokens(refreshToken);
+
+      expect(expectedTokens).toBe(result);
+      expect(cognitoSpyService.refreshTokens.mock.calls[0][0]).toBe(refreshToken);
     });
 
     it('should return an instance of UserDevice with the same properties passed to the method', async () => {

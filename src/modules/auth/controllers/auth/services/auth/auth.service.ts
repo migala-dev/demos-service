@@ -7,6 +7,7 @@ import { LoginResponse } from '../../response/login.response';
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
 import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
 import { UserVerified } from '../../models/user-verified.model';
+import { Tokens } from '../../models/tokens.model';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,10 @@ export class AuthService {
 
     public async verifyCode(phoneNumber: string, code: string, session: string): Promise<UserVerified> {
         return await this.cognitoService.verifyCode(phoneNumber, code, session);
+    }
+
+    public async refreshTokens(refreshToken: string): Promise<Tokens> {
+        return await this.cognitoService.refreshTokens(refreshToken);
     }
 
     public async registerUserDevice(userId: string, deviceId: string): Promise<UserDevice> {

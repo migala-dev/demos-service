@@ -10,6 +10,7 @@ import {
   IAuthenticationCallback,
   CognitoUserAttribute,
   CognitoUserSession,
+  CognitoRefreshToken,
 } from 'amazon-cognito-identity-js';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
@@ -105,6 +106,20 @@ export class CognitoService {
     });
   }
 
+  public refreshTokens(refreshToken: string): Promise<Tokens> {
+    const cognitoUser = this.getAWSCognitoUser('');
+    const cognitoRefreshToken = this.getCognitoRefreshToken(refreshToken);
+    return new Promise((res, rej) => {
+      cognitoUser.refreshSession(cognitoRefreshToken, (err, session) => {
+        const tokens = session ? this.getTokenFromSession(session) : null;
+        if (err) {
+          rej(err);
+        }
+        res(tokens);
+      });
+    });
+  }
+
   private intializeUserPool(): void {
     const poolData: ICognitoUserPoolData = {
       UserPoolId: this.config.get('AWS_USER_POOL_ID'),
@@ -131,6 +146,10 @@ export class CognitoService {
     };
     return new AWSCognitoUser(userData);
   }
+
+  private getCognitoRefreshToken(refreshToken: string): CognitoRefreshToken {
+    return new CognitoRefreshToken({ RefreshToken: refreshToken });
+  };
 
   private getTokenFromSession(session: CognitoUserSession): Tokens {
     const accessToken = session.getAccessToken().getJwtToken();

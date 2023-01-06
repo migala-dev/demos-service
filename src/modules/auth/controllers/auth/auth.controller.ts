@@ -9,6 +9,8 @@ import { User } from '../../../../core/database/entities/user.entity';
 import { Public } from '../../../../core/decorators/auth/public/public.decorator';
 import { VerifyCodeDto } from './dtos/verify-code.dto';
 import { UserVerified } from './models/user-verified.model';
+import { RefreshTokensDto } from './dtos/refresh-tokens.dto';
+import { Tokens } from './models/tokens.model';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +28,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   public verifyCode(@Body() { phoneNumber, code, session }: VerifyCodeDto): Promise<UserVerified> {
     return this.authService.verifyCode(phoneNumber, code, session);
+  }
+
+  @Public()
+  @Post('refresh-tokens')
+  @HttpCode(HttpStatus.OK)
+  public refreshTokens(@Body() { refreshToken }: RefreshTokensDto): Promise<Tokens> {
+    return this.authService.refreshTokens(refreshToken);
   }
 
   @Post('user-device')
