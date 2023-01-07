@@ -11,12 +11,16 @@ export class UserDevicesService {
     @InjectRepository(UserDevice)
     private readonly userDevicesRepository: Repository<UserDevice>,
   ) {}
-
-  public createOrUpdate(userId: string, deviceId: string): Promise<UserDevice> {
-    const userDeviceToCreateOrUpdate: UserDevice = new UserDevice();
-    userDeviceToCreateOrUpdate.userId = userId;
-    userDeviceToCreateOrUpdate.deviceId = deviceId;
-
-    return this.userDevicesRepository.save(userDeviceToCreateOrUpdate);
+ 
+  public async createOrUpdate(userId: string, deviceId: string): Promise<UserDevice> {
+    let userDevice: UserDevice = await this.userDevicesRepository.findOneBy({ userId: userId });
+    if (!!userDevice) {
+      userDevice.deviceId = deviceId;
+    } else {
+      userDevice = new UserDevice() ;
+      userDevice.userId = userId;
+      userDevice.deviceId = deviceId;
+    }
+    return this.userDevicesRepository.save(userDevice);
   }
 }
