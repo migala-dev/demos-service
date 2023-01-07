@@ -41,8 +41,12 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
 
-    userSpyService.findOneByCognitoId.mockReturnValue((async () => ({}) as User)());
-    userDevicesSpyService.createOrUpdate.mockReturnValue((async () => ({}) as UserDevice)());
+    userSpyService.findOneByCognitoId.mockReturnValue(
+      (async () => ({} as User))(),
+    );
+    userDevicesSpyService.createOrUpdate.mockReturnValue(
+      (async () => ({} as UserDevice))(),
+    );
   });
 
   it('should be defined', () => {
@@ -77,16 +81,20 @@ describe('AuthService', () => {
     );
     userSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
     userSpyService.findOneByPhoneNumber.mockReturnValue((async () => null)());
-    userSpyService.create.mockReturnValue((async () => ({}) as any)());
+    userSpyService.create.mockReturnValue((async () => ({} as any))());
 
     await service.login(phoneNumber);
 
     expect(userSpyService.findOneByCognitoId).toHaveBeenCalled();
     expect(userSpyService.findOneByPhoneNumber).toHaveBeenCalled();
-    expect(userSpyService.findOneByPhoneNumber.mock.calls[0][0]).toBe(phoneNumber);
+    expect(userSpyService.findOneByPhoneNumber.mock.calls[0][0]).toBe(
+      phoneNumber,
+    );
     expect(userSpyService.create).toHaveBeenCalled();
     expect(userSpyService.create.mock.calls[0][0]).toBe(phoneNumber);
-    expect(userSpyService.create.mock.calls[0][1]).toBe(loginConstants.cognitoMockId);
+    expect(userSpyService.create.mock.calls[0][1]).toBe(
+      loginConstants.cognitoMockId,
+    );
     expect(userSpyService.updateCognitoId.mock.calls.length).toBe(0);
   });
 
@@ -99,18 +107,21 @@ describe('AuthService', () => {
           loginConstants.cognitoMockId,
         ))(),
     );
-    const userId = 'user-id-mock'
+    const userId = 'user-id-mock';
     userSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
-    userSpyService.findOneByPhoneNumber.mockReturnValue((async () => ({ userId }) as any)());
-    userSpyService.updateCognitoId.mockReturnValue((async () => ({}) as any)());
+    userSpyService.findOneByPhoneNumber.mockReturnValue(
+      (async () => ({ userId } as any))(),
+    );
+    userSpyService.updateCognitoId.mockReturnValue((async () => ({} as any))());
 
     await service.login(phoneNumber);
-
 
     expect(userSpyService.create.mock.calls.length).toBe(0);
     expect(userSpyService.updateCognitoId).toHaveBeenCalled();
     expect(userSpyService.updateCognitoId.mock.calls[0][0]).toBe(userId);
-    expect(userSpyService.updateCognitoId.mock.calls[0][1]).toBe(loginConstants.cognitoMockId);
+    expect(userSpyService.updateCognitoId.mock.calls[0][1]).toBe(
+      loginConstants.cognitoMockId,
+    );
   });
 
   it('should signUp the phoneNumber if the user does not exist on aws', async () => {
@@ -165,28 +176,39 @@ describe('AuthService', () => {
     });
 
     it('should return a UserDevice instance', async () => {
-      userDevicesSpyService.createOrUpdate.mockReturnValue((async () => {
-        const userDevice: UserDevice = new UserDevice();
+      userDevicesSpyService.createOrUpdate.mockReturnValue(
+        (async () => {
+          const userDevice: UserDevice = new UserDevice();
 
-        return userDevice;
-      })())
+          return userDevice;
+        })(),
+      );
 
-      const result: UserDevice = await service.registerUserDevice(userId, deviceId);
+      const result: UserDevice = await service.registerUserDevice(
+        userId,
+        deviceId,
+      );
 
       expect(result instanceof UserDevice).toBeTruthy();
     });
 
     it('should verify code', async () => {
       const expectedUserVerified = new UserVerified();
-      cognitoSpyService.verifyCode.mockReturnValue((async () => {
-        return expectedUserVerified;
-      })())
+      cognitoSpyService.verifyCode.mockReturnValue(
+        (async () => {
+          return expectedUserVerified;
+        })(),
+      );
 
       const phoneNumber = loginConstants.phoneNumber;
       const code = '010202';
       const session = loginConstants.sessionMockToken;
 
-      const result: UserVerified = await service.verifyCode(phoneNumber, code, session);
+      const result: UserVerified = await service.verifyCode(
+        phoneNumber,
+        code,
+        session,
+      );
 
       expect(expectedUserVerified).toBe(result);
       expect(cognitoSpyService.verifyCode.mock.calls[0][0]).toBe(phoneNumber);
@@ -197,33 +219,40 @@ describe('AuthService', () => {
     it('should refresh token', async () => {
       const expectedTokens = new Tokens();
       const refreshToken = 'refresh-token-mock';
-      cognitoSpyService.refreshTokens.mockReturnValue((async () => {
-        return expectedTokens;
-      })());
+      cognitoSpyService.refreshTokens.mockReturnValue(
+        (async () => {
+          return expectedTokens;
+        })(),
+      );
 
       const result: Tokens = await service.refreshTokens(refreshToken);
 
       expect(expectedTokens).toBe(result);
-      expect(cognitoSpyService.refreshTokens.mock.calls[0][0]).toBe(refreshToken);
+      expect(cognitoSpyService.refreshTokens.mock.calls[0][0]).toBe(
+        refreshToken,
+      );
     });
 
     it('should return an instance of UserDevice with the same properties passed to the method', async () => {
       const expectedResult: UserDevice = new UserDevice();
       expectedResult.userId = userId;
       expectedResult.deviceId = deviceId;
-      userDevicesSpyService.createOrUpdate.mockReturnValue((async () => {
-        const userDevice = new UserDevice();
-        userDevice.userId = userId;
-        userDevice.deviceId = deviceId;
+      userDevicesSpyService.createOrUpdate.mockReturnValue(
+        (async () => {
+          const userDevice = new UserDevice();
+          userDevice.userId = userId;
+          userDevice.deviceId = deviceId;
 
-        return userDevice;
-      })())
-
-      const result: UserDevice = await service.registerUserDevice(userId, deviceId);
-
-      expect(result).toEqual(
-        expect.objectContaining(expectedResult)
+          return userDevice;
+        })(),
       );
+
+      const result: UserDevice = await service.registerUserDevice(
+        userId,
+        deviceId,
+      );
+
+      expect(result).toEqual(expect.objectContaining(expectedResult));
     });
   });
 });

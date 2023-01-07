@@ -9,9 +9,9 @@ import { UserDevice } from '../entities/user-device.entity';
 export class UserDevicesService {
   constructor(
     @InjectRepository(UserDevice)
-    private readonly userDevicesRepository: Repository<UserDevice>
+    private readonly userDevicesRepository: Repository<UserDevice>,
   ) {}
-
+ 
   public async createOrUpdate(userId: string, deviceId: string): Promise<UserDevice> {
     let userDevice: UserDevice = await this.userDevicesRepository.findOneBy({ userId: userId });
     if (!!userDevice) {

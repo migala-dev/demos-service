@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreModule } from './core/core.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { CacheModule } from './modules/cache/cache.module';
 
 @Module({
   imports: [
@@ -17,9 +18,9 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
       load: [configuration],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],      
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres' as 'postgres',
+        type: 'postgres' as const,
         host: configService.get<string>('DATABASE_HOST'),
         port: parseInt(configService.get<string>('DATABASE_PORT')),
         username: configService.get<string>('DATABASE_USER'),
@@ -35,6 +36,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     CoreModule,
     AuthModule,
     SpacesModule,
+    CacheModule,
   ],
   controllers: [AppController],
   providers: [

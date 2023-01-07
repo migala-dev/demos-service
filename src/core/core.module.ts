@@ -9,11 +9,27 @@ import { Space } from './database/entities/space.entity';
 import { Member } from './database/entities/member.entity';
 import { SpacesService } from './database/services/space.service';
 import { MembersService } from './database/services/member.service';
+import { Cache } from './database/entities/cache.entity';
+import { CacheRepository } from './database/services/cache.repository';
 
 @Global()
 @Module({
-    imports: [TypeOrmModule.forFeature([User, UserDevice, Space, Member])],
-    providers: [UsersService, ConfigService, UserDevicesService, SpacesService, MembersService],
-    exports: [UsersService, ConfigService, UserDevicesService, SpacesService, MembersService],
+  imports: [TypeOrmModule.forFeature([User, UserDevice, Space, Member, Cache])],
+  providers: [
+    UsersService,
+    ConfigService,
+    UserDevicesService,
+    SpacesService,
+    MembersService,
+    CacheRepository,
+  ],
+  exports: [
+    UsersService,
+    ConfigService,
+    UserDevicesService,
+    SpacesService,
+    MembersService,
+    CacheRepository,
+  ],
 })
 export class CoreModule {}

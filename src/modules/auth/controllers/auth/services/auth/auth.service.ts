@@ -11,48 +11,66 @@ import { Tokens } from '../../models/tokens.model';
 
 @Injectable()
 export class AuthService {
-    
-    constructor(
-      private readonly cognitoService: CognitoService, 
-      private readonly usersService: UsersService,
-      private readonly userDevicesService: UserDevicesService,
-    ) {}
+  constructor(
+    private readonly cognitoService: CognitoService,
+    private readonly usersService: UsersService,
+    private readonly userDevicesService: UserDevicesService,
+  ) {}
 
-    public async login(phoneNumber: string): Promise<LoginResponse> {
-        const cognitoUser: CognitoUser = await this.cognitoService.signIn(phoneNumber);
+  public async login(phoneNumber: string): Promise<LoginResponse> {
+    const cognitoUser: CognitoUser = await this.cognitoService.signIn(
+      phoneNumber,
+    );
 
-        if(!cognitoUser.isUserCreated) {
-            await this.cognitoService.signUp(phoneNumber);
-            return this.login(phoneNumber);
-        }
-
-        await this.checkUserRecord(phoneNumber, cognitoUser.cognitoId);
-
-        return { session: cognitoUser.session };
+    if (!cognitoUser.isUserCreated) {
+      await this.cognitoService.signUp(phoneNumber);
+      return this.login(phoneNumber);
     }
 
-    private async checkUserRecord(phoneNumber: string, cognitoId: string): Promise<void> {
-        let user: User = await this.usersService.findOneByCognitoId(cognitoId);
-        if(!user) {
-            user = await this.usersService.findOneByPhoneNumber(phoneNumber);
-            if(!user) {
-                return this.usersService.create(phoneNumber, cognitoId).then(() => null);
-            }
-            return this.usersService.updateCognitoId(user.userId, cognitoId).then(() => null);
-        }
-    }
+    await this.checkUserRecord(phoneNumber, cognitoUser.cognitoId);
 
-    public async verifyCode(phoneNumber: string, code: string, session: string): Promise<UserVerified> {
-        return await this.cognitoService.verifyCode(phoneNumber, code, session);
-    }
+    return { session: cognitoUser.session };
+  }
 
-    public async refreshTokens(refreshToken: string): Promise<Tokens> {
-        return await this.cognitoService.refreshTokens(refreshToken);
+  private async checkUserRecord(
+    phoneNumber: string,
+    cognitoId: string,
+  ): Promise<void> {
+    let user: User = await this.usersService.findOneByCognitoId(cognitoId);
+    if (!user) {
+      user = await this.usersService.findOneByPhoneNumber(phoneNumber);
+      if (!user) {
+        return this.usersService
+          .create(phoneNumber, cognitoId)
+          .then(() => null);
+      }
+      return this.usersService
+        .updateCognitoId(user.userId, cognitoId)
+        .then(() => null);
     }
+  }
 
-    public async registerUserDevice(userId: string, deviceId: string): Promise<UserDevice> {
-      const userDevice: UserDevice = await this.userDevicesService.createOrUpdate(userId, deviceId);
+  public async verifyCode(
+    phoneNumber: string,
+    code: string,
+    session: string,
+  ): Promise<UserVerified> {
+    return await this.cognitoService.verifyCode(phoneNumber, code, session);
+  }
 
-      return userDevice;
-    }
+  public async refreshTokens(refreshToken: string): Promise<Tokens> {
+    return await this.cognitoService.refreshTokens(refreshToken);
+  }
+
+  public async registerUserDevice(
+    userId: string,
+    deviceId: string,
+  ): Promise<UserDevice> {
+    const userDevice: UserDevice = await this.userDevicesService.createOrUpdate(
+      userId,
+      deviceId,
+    );
+
+    return userDevice;
+  }
 }

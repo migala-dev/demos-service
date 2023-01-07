@@ -24,4 +24,5 @@ export interface SpaceMemberRequest<T>
     RequestWithMember {}
 
 export interface SpaceAndMemberRequest
-  extends RequestWithSpace, RequestWithMember {}
+  extends RequestWithSpace,
+    RequestWithMember {}

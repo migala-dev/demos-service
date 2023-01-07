@@ -1,4 +1,4 @@
-import { loginConstants } from "../constants/constants";
+import { loginConstants } from '../constants/constants';
 
 function CognitoUser(data) {
   const { Username } = data;
@@ -13,13 +13,13 @@ function CognitoUser(data) {
       callbacks.customChallenge({ USERNAME: loginConstants.cognitoMockId });
     } else {
       callbacks.onFailure({ message: 'User does not exist' });
-    } 
+    }
   });
 
   this.sendCustomChallengeAnswer = jest.fn((answerChallenge, callbacks) => {
     if (originalSession !== this.Session) {
       callbacks.onFailure({ message: 'Not a valid session' });
-    } else if(loginConstants.correctVerificationCode === answerChallenge) {
+    } else if (loginConstants.correctVerificationCode === answerChallenge) {
       const tokenObject = {
         getAccessToken: () => ({
           getJwtToken: () => loginConstants.accessTokenMock,
@@ -35,23 +35,24 @@ function CognitoUser(data) {
     }
   });
 
-  this.refreshSession = jest.fn((refreshSession, callback: (err: any, session: any ) => void) => {
-    console.log(refreshSession);
-    if (refreshSession.refreshToken === loginConstants.refreshTokenMock) {
-      const tokenObject = {
-        getAccessToken: () => ({
-          getJwtToken: () => loginConstants.accessTokenMock,
-        }),
-        getRefreshToken: () => ({
-          getToken: () => loginConstants.newRefreshTokenMock,
-        }),
-      };
-      callback(null, tokenObject);
-    } else {
-      const err = { message: 'Invalid Refresh Token' };
-      callback(err, null);
-    }
-  });
+  this.refreshSession = jest.fn(
+    (refreshSession, callback: (err: any, session: any) => void) => {
+      if (refreshSession.refreshToken === loginConstants.refreshTokenMock) {
+        const tokenObject = {
+          getAccessToken: () => ({
+            getJwtToken: () => loginConstants.accessTokenMock,
+          }),
+          getRefreshToken: () => ({
+            getToken: () => loginConstants.newRefreshTokenMock,
+          }),
+        };
+        callback(null, tokenObject);
+      } else {
+        const err = { message: 'Invalid Refresh Token' };
+        callback(err, null);
+      }
+    },
+  );
 }
 
 module.exports = CognitoUser;
