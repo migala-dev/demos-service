@@ -5,19 +5,19 @@ import { createSpyObj } from 'jest-createspyobj';
 
 import { JwtStrategy } from './jwt.strategy';
 import { User } from '../../../core/database/entities/user.entity';
-import { UsersService } from '../../../core/database/services/user.service';
+import { UserRepository } from '../../../core/database/services/user.repository';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let usersSpyService: jest.Mocked<UsersService>;
+  let usersSpyService: jest.Mocked<UserRepository>;
 
   beforeEach(async () => {
-    usersSpyService = createSpyObj(UsersService);
+    usersSpyService = createSpyObj(UserRepository);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
-        { provide: UsersService, useValue: usersSpyService },
+        { provide: UserRepository, useValue: usersSpyService },
       ],
     }).compile();
 

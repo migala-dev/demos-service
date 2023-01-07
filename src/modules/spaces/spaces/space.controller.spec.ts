@@ -18,22 +18,22 @@ import {
   userMockFactory,
   spaceMockFactory,
 } from '../../../../test/utils/entities-mock.factory';
-import { MembersService } from '../../../core/database/services/member.service';
-import { SpacesService } from '../../../core/database/services/space.service';
+import { MemberRepository } from '../../../core/database/services/member.repository';
+import { SpaceRepository } from '../../../core/database/services/space.repository';
 
 describe('SpacesController', () => {
   let controller: SpaceController;
   let spaceSpyService: jest.Mocked<SpaceService>;
-  let memberSpyService: jest.Mocked<MembersService>;
-  let spaceSpyRepository: jest.Mocked<SpacesService>;
+  let memberSpyService: jest.Mocked<MemberRepository>;
+  let spaceSpyRepository: jest.Mocked<SpaceRepository>;
   let spaceRolesSpyGuard: jest.Mocked<SpaceRolesGuard>;
 
   let chance: Chance.Chance;
 
   beforeEach(async () => {
     spaceSpyService = createSpyObj(SpaceService);
-    memberSpyService = createSpyObj(MembersService);
-    spaceSpyRepository = createSpyObj(SpacesService);
+    memberSpyService = createSpyObj(MemberRepository);
+    spaceSpyRepository = createSpyObj(SpaceRepository);
     spaceRolesSpyGuard = createSpyObj(SpaceRolesGuard);
 
     chance = new Chance();
@@ -47,11 +47,11 @@ describe('SpacesController', () => {
           useValue: spaceSpyService,
         },
         {
-          provide: MembersService,
+          provide: MemberRepository,
           useValue: memberSpyService,
         },
         {
-          provide: SpacesService,
+          provide: SpaceRepository,
           useValue: spaceSpyRepository,
         },
       ],

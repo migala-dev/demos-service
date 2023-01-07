@@ -2,14 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { FileService } from '../file/file.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
-import { UsersService } from '../../../../../../core/database/services/user.service';
+import { UserRepository } from '../../../../../../core/database/services/user.repository';
 import { UploadResponse } from '../file/response/upload.response';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly fileService: FileService,
-    private readonly usersService: UsersService,
+    private readonly usersService: UserRepository,
   ) {}
 
   public async uploadAvatarImage(

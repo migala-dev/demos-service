@@ -1,14 +1,14 @@
 import { Global, Module } from '@nestjs/common';
-import { UsersService } from './database/services/user.service';
+import { UserRepository } from './database/services/user.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './database/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-import { UserDevicesService } from './database/services/user-device.service';
+import { UserDevicesRepository } from './database/services/user-device.repository';
 import { UserDevice } from './database/entities/user-device.entity';
 import { Space } from './database/entities/space.entity';
 import { Member } from './database/entities/member.entity';
-import { SpacesService } from './database/services/space.service';
-import { MembersService } from './database/services/member.service';
+import { SpaceRepository } from './database/services/space.repository';
+import { MemberRepository } from './database/services/member.repository';
 import { Cache } from './database/entities/cache.entity';
 import { CacheRepository } from './database/services/cache.repository';
 
@@ -16,19 +16,19 @@ import { CacheRepository } from './database/services/cache.repository';
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserDevice, Space, Member, Cache])],
   providers: [
-    UsersService,
+    UserRepository,
     ConfigService,
-    UserDevicesService,
-    SpacesService,
-    MembersService,
+    UserDevicesRepository,
+    SpaceRepository,
+    MemberRepository,
     CacheRepository,
   ],
   exports: [
-    UsersService,
+    UserRepository,
     ConfigService,
-    UserDevicesService,
-    SpacesService,
-    MembersService,
+    UserDevicesRepository,
+    SpaceRepository,
+    MemberRepository,
     CacheRepository,
   ],
 })

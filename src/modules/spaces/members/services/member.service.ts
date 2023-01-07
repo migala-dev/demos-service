@@ -3,16 +3,16 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Space } from '../../../../core/database/entities/space.entity';
 import { Member } from '../../../../core/database/entities/member.entity';
 import { User } from '../../../../core/database/entities/user.entity';
-import { UsersService } from '../../../../core/database/services/user.service';
-import { MembersService } from '../../../../core/database/services/member.service';
+import { UserRepository } from '../../../../core/database/services/user.repository';
+import { MemberRepository } from '../../../../core/database/services/member.repository';
 import { SpaceRole, InvitationStatus } from '../../../../core/enums';
 import { UserToInviteDto } from '../dtos/user-to-invite.dto';
 
 @Injectable()
 export class MemberService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly membersService: MembersService,
+    private readonly usersService: UserRepository,
+    private readonly membersService: MemberRepository,
   ) {}
 
   public async sendInvitations(

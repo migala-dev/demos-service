@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CognitoService } from '../cognito/cognito.service';
 import { CognitoUser } from '../../models/cognito-user.model';
-import { UsersService } from '../../../../../../core/database/services/user.service';
+import { UserRepository } from '../../../../../../core/database/services/user.repository';
 import { User } from '../../../../../../core/database/entities/user.entity';
 import { LoginResponse } from '../../response/login.response';
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
-import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
+import { UserDevicesRepository } from '../../../../../../core/database/services/user-device.repository';
 import { UserVerified } from '../../models/user-verified.model';
 import { Tokens } from '../../models/tokens.model';
 
@@ -13,8 +13,8 @@ import { Tokens } from '../../models/tokens.model';
 export class AuthService {
   constructor(
     private readonly cognitoService: CognitoService,
-    private readonly usersService: UsersService,
-    private readonly userDevicesService: UserDevicesService,
+    private readonly usersService: UserRepository,
+    private readonly userDevicesService: UserDevicesRepository,
   ) {}
 
   public async login(phoneNumber: string): Promise<LoginResponse> {

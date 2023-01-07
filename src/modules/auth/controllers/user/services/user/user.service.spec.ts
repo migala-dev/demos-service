@@ -6,18 +6,18 @@ import { UpdateResult } from 'typeorm';
 
 import { UserService } from './user.service';
 import { User } from '../../../../../../core/database/entities/user.entity';
-import { UsersService } from '../../../../../../core/database/services/user.service';
+import { UserRepository } from '../../../../../../core/database/services/user.repository';
 import { FileService } from '../file/file.service';
 import { UploadResponse } from '../file/response/upload.response';
 
 describe('UserService', () => {
   let service: UserService;
   let fileSpyService: jest.Mocked<FileService>;
-  let usersSpyService: jest.Mocked<UsersService>;
+  let usersSpyService: jest.Mocked<UserRepository>;
 
   beforeEach(async () => {
     fileSpyService = createSpyObj(FileService);
-    usersSpyService = createSpyObj(UsersService);
+    usersSpyService = createSpyObj(UserRepository);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -27,7 +27,7 @@ describe('UserService', () => {
           useValue: fileSpyService,
         },
         {
-          provide: UsersService,
+          provide: UserRepository,
           useValue: usersSpyService,
         },
       ],

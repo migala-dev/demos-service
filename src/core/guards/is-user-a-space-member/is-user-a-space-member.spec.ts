@@ -11,8 +11,8 @@ import { mock } from 'jest-mock-extended';
 import { Chance } from 'chance';
 
 import { IsUserASpaceMemberGuard } from './is-user-a-space-member.guard';
-import { MembersService } from '../../database/services/member.service';
-import { SpacesService } from '../../database/services/space.service';
+import { MemberRepository } from '../../database/services/member.repository';
+import { SpaceRepository } from '../../database/services/space.repository';
 import { Member } from '../../database/entities/member.entity';
 import { Space } from '../../database/entities/space.entity';
 import { ParamsWithSpaceId } from '../../interfaces/params.interface';
@@ -24,12 +24,12 @@ import {
 
 describe('IsUserASpaceMemberGuard', () => {
   let guard: IsUserASpaceMemberGuard;
-  let membersSpyService: jest.Mocked<MembersService>;
-  let spacesSpyService: jest.Mocked<SpacesService>;
+  let membersSpyService: jest.Mocked<MemberRepository>;
+  let spacesSpyService: jest.Mocked<SpaceRepository>;
 
   beforeEach(() => {
-    membersSpyService = createSpyObj(MembersService);
-    spacesSpyService = createSpyObj(SpacesService);
+    membersSpyService = createSpyObj(MemberRepository);
+    spacesSpyService = createSpyObj(SpaceRepository);
 
     guard = new IsUserASpaceMemberGuard(membersSpyService, spacesSpyService);
   });

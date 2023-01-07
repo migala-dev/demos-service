@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 
 import { Member } from '../../database/entities/member.entity';
-import { MembersService } from '../../database/services/member.service';
+import { MemberRepository } from '../../database/services/member.repository';
 import { Space } from '../../database/entities/space.entity';
-import { SpacesService } from '../../database/services/space.service';
+import { SpaceRepository } from '../../database/services/space.repository';
 import { SpaceMemberRequest } from '../../interfaces/request.interface';
 import { ParamsWithSpaceId } from '../../interfaces/params.interface';
 import { RequestWithUser } from '../../interfaces/request.interface';
@@ -20,8 +20,8 @@ import { RequestWithUser } from '../../interfaces/request.interface';
 @Injectable()
 export class IsUserASpaceMemberGuard implements CanActivate {
   constructor(
-    private readonly membersService: MembersService,
-    private readonly spacesService: SpacesService,
+    private readonly membersService: MemberRepository,
+    private readonly spacesService: SpaceRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { SpacesService } from '../../../../../core/database/services/space.service';
-import { MembersService } from '../../../../../core/database/services/member.service';
+import { SpaceRepository } from '../../../../../core/database/services/space.repository';
+import { MemberRepository } from '../../../../../core/database/services/member.repository';
 import { Space } from '../../../../../core/database/entities/space.entity';
 import { InvitationStatus, SpaceRole } from '../../../../../core/enums';
 import { Member } from '../../../../../core/database/entities/member.entity';
@@ -12,8 +12,8 @@ import { UpdateSpaceInfoDto } from '../../dtos/update-space-info.dto';
 @Injectable()
 export class SpaceService {
   constructor(
-    private readonly spacesService: SpacesService,
-    private readonly membersService: MembersService,
+    private readonly spacesService: SpaceRepository,
+    private readonly membersService: MemberRepository,
   ) {}
 
   public async createSpaceAndOwnerMember(

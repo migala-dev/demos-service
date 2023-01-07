@@ -5,9 +5,9 @@ import { mock } from 'jest-mock-extended';
 import { Chance } from 'chance';
 
 import { SpaceService } from './space.service';
-import { SpacesService } from '../../../../../core/database/services/space.service';
+import { SpaceRepository } from '../../../../../core/database/services/space.repository';
 import { Space } from '../../../../../core/database/entities/space.entity';
-import { MembersService } from '../../../../../core/database/services/member.service';
+import { MemberRepository } from '../../../../../core/database/services/member.repository';
 import { Member } from '../../../../../core/database/entities/member.entity';
 import { InvitationStatus, SpaceRole } from '../../../../../core/enums';
 import { CreateSpaceResponse } from '../../response/create.response';
@@ -20,14 +20,14 @@ import { SpaceDto } from '../../dtos/space.dto';
 
 describe('SpacesService', () => {
   let service: SpaceService;
-  let spacesSpyService: jest.Mocked<SpacesService>;
-  let membersSpyService: jest.Mocked<MembersService>;
+  let spacesSpyService: jest.Mocked<SpaceRepository>;
+  let membersSpyService: jest.Mocked<MemberRepository>;
 
   let chance: Chance.Chance;
 
   beforeEach(async () => {
-    spacesSpyService = createSpyObj(SpacesService);
-    membersSpyService = createSpyObj(MembersService);
+    spacesSpyService = createSpyObj(SpaceRepository);
+    membersSpyService = createSpyObj(MemberRepository);
 
     chance = new Chance();
 
@@ -35,11 +35,11 @@ describe('SpacesService', () => {
       providers: [
         SpaceService,
         {
-          provide: SpacesService,
+          provide: SpaceRepository,
           useValue: spacesSpyService,
         },
         {
-          provide: MembersService,
+          provide: MemberRepository,
           useValue: membersSpyService,
         },
       ],

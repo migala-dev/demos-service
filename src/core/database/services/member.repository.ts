@@ -7,7 +7,7 @@ import { Member } from '../entities/member.entity';
 import { InvitationStatus, SpaceRole } from '../../enums';
 
 @Injectable()
-export class MembersService {
+export class MemberRepository {
   constructor(
     @InjectRepository(Member)
     private readonly membersRepository: Repository<Member>,

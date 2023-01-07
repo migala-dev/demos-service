@@ -6,7 +6,7 @@ import { Repository, UpdateResult } from 'typeorm';
 import { Space } from '../entities/space.entity';
 
 @Injectable()
-export class SpacesService {
+export class SpaceRepository {
   constructor(
     @InjectRepository(Space)
     private readonly spacesRepository: Repository<Space>,

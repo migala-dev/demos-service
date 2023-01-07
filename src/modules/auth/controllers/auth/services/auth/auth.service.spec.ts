@@ -4,9 +4,9 @@ import { AuthService } from './auth.service';
 import { CognitoService } from '../cognito/cognito.service';
 import { createSpyObj } from 'jest-createspyobj';
 import { CognitoUser } from '../../models/cognito-user.model';
-import { UsersService } from '../../../../../../core/database/services/user.service';
+import { UserRepository } from '../../../../../../core/database/services/user.repository';
 import { User } from '../../../../../../core/database/entities/user.entity';
-import { UserDevicesService } from '../../../../../../core/database/services/user-device.service';
+import { UserDevicesRepository } from '../../../../../../core/database/services/user-device.repository';
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
 import { UserVerified } from '../../models/user-verified.model';
 import { Tokens } from '../../models/tokens.model';
@@ -14,13 +14,13 @@ import { Tokens } from '../../models/tokens.model';
 describe('AuthService', () => {
   let service: AuthService;
   let cognitoSpyService: jest.Mocked<CognitoService>;
-  let userSpyService: jest.Mocked<UsersService>;
-  let userDevicesSpyService: jest.Mocked<UserDevicesService>;
+  let userSpyService: jest.Mocked<UserRepository>;
+  let userDevicesSpyService: jest.Mocked<UserDevicesRepository>;
 
   beforeEach(async () => {
     cognitoSpyService = createSpyObj(CognitoService);
-    userSpyService = createSpyObj(UsersService);
-    userDevicesSpyService = createSpyObj(UserDevicesService);
+    userSpyService = createSpyObj(UserRepository);
+    userDevicesSpyService = createSpyObj(UserDevicesRepository);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -29,11 +29,11 @@ describe('AuthService', () => {
           useValue: cognitoSpyService,
         },
         {
-          provide: UsersService,
+          provide: UserRepository,
           useValue: userSpyService,
         },
         {
-          provide: UserDevicesService,
+          provide: UserDevicesRepository,
           useValue: userDevicesSpyService,
         },
       ],

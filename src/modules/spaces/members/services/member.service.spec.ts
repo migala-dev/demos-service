@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { createSpyObj } from 'jest-createspyobj';
 import { Chance } from 'chance';
 
-import { MembersService } from '../../../../core/database/services/member.service';
-import { UsersService } from '../../../../core/database/services/user.service';
+import { MemberRepository } from '../../../../core/database/services/member.repository';
+import { UserRepository } from '../../../../core/database/services/user.repository';
 import { MemberService } from './member.service';
 import { User } from '../../../../core/database/entities/user.entity';
 import { Member } from '../../../../core/database/entities/member.entity';
@@ -22,14 +22,14 @@ import {
 
 describe('MemberService', () => {
   let service: MemberService;
-  let usersSpyService: jest.Mocked<UsersService>;
-  let membersSpyService: jest.Mocked<MembersService>;
+  let usersSpyService: jest.Mocked<UserRepository>;
+  let membersSpyService: jest.Mocked<MemberRepository>;
 
   let chance: Chance.Chance;
 
   beforeEach(async () => {
-    usersSpyService = createSpyObj(UsersService);
-    membersSpyService = createSpyObj(MembersService);
+    usersSpyService = createSpyObj(UserRepository);
+    membersSpyService = createSpyObj(MemberRepository);
 
     chance = new Chance();
 
@@ -37,11 +37,11 @@ describe('MemberService', () => {
       providers: [
         MemberService,
         {
-          provide: UsersService,
+          provide: UserRepository,
           useValue: usersSpyService,
         },
         {
-          provide: MembersService,
+          provide: MemberRepository,
           useValue: membersSpyService,
         },
       ],
