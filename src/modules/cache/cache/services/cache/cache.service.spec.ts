@@ -11,10 +11,13 @@ describe('CacheService', () => {
   beforeEach(async () => {
     cacheSpyRepository = createSpyObj(CacheRepository);
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CacheService, {
-        provide: CacheRepository,
-        useValue: cacheSpyRepository,
-      }],
+      providers: [
+        CacheService,
+        {
+          provide: CacheRepository,
+          useValue: cacheSpyRepository,
+        },
+      ],
     }).compile();
 
     service = module.get<CacheService>(CacheService);
@@ -27,12 +30,14 @@ describe('CacheService', () => {
   it('should get cache from cache repository', async () => {
     const userId = loginConstants.userId;
     const lastUpdatedDate: string = new Date().toDateString();
-      await service.getCache(userId, lastUpdatedDate);
+    await service.getCache(userId, lastUpdatedDate);
 
-      expect(cacheSpyRepository.findAllByUserIdAfterDate).toHaveBeenCalledTimes(1);
-      expect(cacheSpyRepository.findAllByUserIdAfterDate).toHaveBeenCalledWith(
-        loginConstants.userId,
-        new Date(lastUpdatedDate),
-      );
+    expect(cacheSpyRepository.findAllByUserIdAfterDate).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(cacheSpyRepository.findAllByUserIdAfterDate).toHaveBeenCalledWith(
+      loginConstants.userId,
+      new Date(lastUpdatedDate),
+    );
   });
 });

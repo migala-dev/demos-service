@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 
 import { Space } from '../entities/space.entity';
 
@@ -31,5 +31,22 @@ export class SpacesService {
 
   public findOneById(spaceId: string) {
     return this.spacesRepository.findOneBy({ spaceId });
+  }
+
+  public updateNameAndDescriptionAndPercentages(
+    spaceId: string,
+    name?: string,
+    description?: string,
+    approvalPercentage?: number,
+    participationPercentage?: number,
+  ): Promise<UpdateResult> {
+    const space: Space = this.spacesRepository.create({
+      name,
+      description,
+      approvalPercentage,
+      participationPercentage,
+    });
+
+    return this.spacesRepository.update(spaceId, space);
   }
 }

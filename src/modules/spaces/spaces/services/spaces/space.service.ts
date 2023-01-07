@@ -6,6 +6,8 @@ import { Space } from '../../../../../core/database/entities/space.entity';
 import { InvitationStatus, SpaceRole } from '../../../../../core/enums';
 import { Member } from '../../../../../core/database/entities/member.entity';
 import { CreateSpaceResponse } from '../../response/create.response';
+import { User } from '../../../../../core/database/entities/user.entity';
+import { UpdateSpaceInfoDto } from '../../dtos/update-space-info.dto';
 
 @Injectable()
 export class SpaceService {
@@ -38,5 +40,25 @@ export class SpaceService {
     );
 
     return { space, member };
+  }
+
+  public async updateSpaceInfo(
+    user: User,
+    space: Space,
+    spaceInfo: UpdateSpaceInfoDto,
+  ): Promise<Space> {
+    await this.spacesService.updateNameAndDescriptionAndPercentages(
+      space.spaceId,
+      spaceInfo.name,
+      spaceInfo.description,
+      spaceInfo.approvalPercentage,
+      spaceInfo.participationPercentage,
+    );
+
+    const spaceUpdated: Space = await this.spacesService.findOneById(
+      space.spaceId,
+    );
+
+    return spaceUpdated;
   }
 }
