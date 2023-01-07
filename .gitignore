@@ -36,3 +36,8 @@ lerna-debug.log*
 
 
 .env
+
+jwks.json
+
+package-lock.json
+yarn.lock

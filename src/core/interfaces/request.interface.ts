@@ -19,10 +19,8 @@ export interface RequestWithMember extends RequestWithUser {
 }
 
 export interface SpaceMemberRequest<T>
-  extends RequestWithUser,
-    RequestWithParams<T>,
+  extends RequestWithParams<T>,
     RequestWithSpace,
     RequestWithMember {}
 
-export interface SpaceAndMemberRequest
-  extends RequestWithSpace, RequestWithMember {}
+export interface SpaceAndMemberRequest  extends RequestWithSpace, RequestWithMember {}

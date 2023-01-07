@@ -17,5 +17,4 @@ export class User extends DateColumns {
 
   @Column({ nullable: true })
   cognitoId: string;
-
 }

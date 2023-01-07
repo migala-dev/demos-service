@@ -11,13 +11,13 @@ import {
 import { SpaceService } from './services/spaces/space.service';
 import { SpaceDto } from './dtos/space.dto';
 import { CreateSpaceResponse } from './response/create.response';
-import { SpaceModel } from './models/space.model';
 import { SpaceRoles } from '../../../core/decorators/space-roles.decorator';
 import { SpaceRole } from '../../../core/enums';
 import { UpdateSpaceInfoDto } from './dtos/update-space-info.dto';
 import { RequestWithSpace } from '../../../core/interfaces/request.interface';
 import { UpdateSpaceInfoModel } from './models/update-space-info.model';
 import { Space } from '../../../core/database/entities/space.entity';
+import { UserFromRequest } from '../../../core/decorators/auth/user-from-request/user-from-request.decorator';
 import { User } from '../../../core/database/entities/user.entity';
 
 @Controller('spaces')
@@ -27,13 +27,16 @@ export class SpaceController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   public async create(
+    @UserFromRequest() { userId }: User,
     @Body() spaceDto: SpaceDto,
   ): Promise<CreateSpaceResponse> {
-    const userIdMock = '8a3b0ece-cd25-4c81-ab91-0abacdf9357e';
-    const newSpace: SpaceModel = { ...spaceDto };
-
-    return this.spaceService.createSpaceAndOwnerMember(newSpace, userIdMock);
-    //return this.spaceService.createSpaceAndOwnerMember(newSpace, userId);
+    return this.spaceService.createSpaceAndOwnerMember(
+      userId,
+      spaceDto.name,
+      spaceDto.description,
+      spaceDto.approvalPercentage,
+      spaceDto.participationPercentage,
+    );
   }
 
   @Patch(':spaceId')
@@ -44,9 +47,7 @@ export class SpaceController {
     @Req() { user, space }: RequestWithSpace,
   ): Promise<Space> {
     const updateSpaceInfo: UpdateSpaceInfoModel = { ...updateSpaceInfoDto };
-    const userMock: User = new User();
 
-    return this.spaceService.updateSpaceInfo(userMock, space, updateSpaceInfo);
-    //return this.spaceService.updateSpaceInfo(user, space, updateSpaceInfo);
+    return this.spaceService.updateSpaceInfo(user, space, updateSpaceInfo);
   }
 }

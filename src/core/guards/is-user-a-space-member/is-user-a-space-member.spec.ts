@@ -10,7 +10,7 @@ import { createSpyObj } from 'jest-createspyobj';
 import { mock } from 'jest-mock-extended';
 import { Chance } from 'chance';
 
-import { SpaceMemberGuard } from './space-member.guard';
+import { IsUserASpaceMemberGuard } from './is-user-a-space-member.guard';
 import { MembersService } from '../../database/services/member.service';
 import { SpacesService } from '../../database/services/space.service';
 import { Member } from '../../database/entities/member.entity';
@@ -22,8 +22,8 @@ import {
   memberMockFactory,
 } from '../../../../test/utils/entities-mock.factory';
 
-describe('SpaceMemberGuard', () => {
-  let guard: SpaceMemberGuard;
+describe('IsUserASpaceMemberGuard', () => {
+  let guard: IsUserASpaceMemberGuard;
   let membersSpyService: jest.Mocked<MembersService>;
   let spacesSpyService: jest.Mocked<SpacesService>;
 
@@ -31,7 +31,7 @@ describe('SpaceMemberGuard', () => {
     membersSpyService = createSpyObj(MembersService);
     spacesSpyService = createSpyObj(SpacesService);
 
-    guard = new SpaceMemberGuard(membersSpyService, spacesSpyService);
+    guard = new IsUserASpaceMemberGuard(membersSpyService, spacesSpyService);
   });
 
   describe('canActivate method', () => {
@@ -85,7 +85,7 @@ describe('SpaceMemberGuard', () => {
       await expect(execute).rejects.toThrowError(UnauthorizedException);
     });
 
-    it('should return true if the request is validated', async () => {
+    it('should return true if the space exists and if the user is a member of that space', async () => {
       const result: boolean = await guard.canActivate(executionContextMock);
 
       expect(result).toBeTruthy();
