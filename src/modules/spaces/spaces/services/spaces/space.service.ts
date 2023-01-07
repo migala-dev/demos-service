@@ -12,8 +12,8 @@ import { UpdateSpaceInfoDto } from '../../dtos/update-space-info.dto';
 @Injectable()
 export class SpaceService {
   constructor(
-    private readonly spacesService: SpaceRepository,
-    private readonly membersService: MemberRepository,
+    private readonly spaceRepository: SpaceRepository,
+    private readonly memberRepository: MemberRepository,
   ) {}
 
   public async createSpaceAndOwnerMember(
@@ -23,7 +23,7 @@ export class SpaceService {
     approvalPercentage: number,
     participationPercentage: number,
   ): Promise<CreateSpaceResponse> {
-    const space: Space = await this.spacesService.create(
+    const space: Space = await this.spaceRepository.create(
       userId,
       name,
       description,
@@ -31,7 +31,7 @@ export class SpaceService {
       participationPercentage,
     );
 
-    const member: Member = await this.membersService.create(
+    const member: Member = await this.memberRepository.create(
       space.spaceId,
       userId,
       InvitationStatus.ACCEPTED,
@@ -47,7 +47,7 @@ export class SpaceService {
     space: Space,
     spaceInfo: UpdateSpaceInfoDto,
   ): Promise<Space> {
-    await this.spacesService.updateNameAndDescriptionAndPercentages(
+    await this.spaceRepository.updateNameAndDescriptionAndPercentages(
       space.spaceId,
       spaceInfo.name,
       spaceInfo.description,
@@ -55,7 +55,7 @@ export class SpaceService {
       spaceInfo.participationPercentage,
     );
 
-    const spaceUpdated: Space = await this.spacesService.findOneById(
+    const spaceUpdated: Space = await this.spaceRepository.findOneById(
       space.spaceId,
     );
 

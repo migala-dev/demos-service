@@ -13,8 +13,8 @@ import { Tokens } from '../../models/tokens.model';
 export class AuthService {
   constructor(
     private readonly cognitoService: CognitoService,
-    private readonly usersService: UserRepository,
-    private readonly userDevicesService: UserDevicesRepository,
+    private readonly userRepository: UserRepository,
+    private readonly userDevicesRepository: UserDevicesRepository,
   ) {}
 
   public async login(phoneNumber: string): Promise<LoginResponse> {
@@ -36,15 +36,15 @@ export class AuthService {
     phoneNumber: string,
     cognitoId: string,
   ): Promise<void> {
-    let user: User = await this.usersService.findOneByCognitoId(cognitoId);
+    let user: User = await this.userRepository.findOneByCognitoId(cognitoId);
     if (!user) {
-      user = await this.usersService.findOneByPhoneNumber(phoneNumber);
+      user = await this.userRepository.findOneByPhoneNumber(phoneNumber);
       if (!user) {
-        return this.usersService
+        return this.userRepository
           .create(phoneNumber, cognitoId)
           .then(() => null);
       }
-      return this.usersService
+      return this.userRepository
         .updateCognitoId(user.userId, cognitoId)
         .then(() => null);
     }
@@ -66,10 +66,8 @@ export class AuthService {
     userId: string,
     deviceId: string,
   ): Promise<UserDevice> {
-    const userDevice: UserDevice = await this.userDevicesService.createOrUpdate(
-      userId,
-      deviceId,
-    );
+    const userDevice: UserDevice =
+      await this.userDevicesRepository.createOrUpdate(userId, deviceId);
 
     return userDevice;
   }

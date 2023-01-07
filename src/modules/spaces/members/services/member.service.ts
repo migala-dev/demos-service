@@ -11,8 +11,8 @@ import { UserToInviteDto } from '../dtos/user-to-invite.dto';
 @Injectable()
 export class MemberService {
   constructor(
-    private readonly usersService: UserRepository,
-    private readonly membersService: MemberRepository,
+    private readonly userRepository: UserRepository,
+    private readonly memberRepository: MemberRepository,
   ) {}
 
   public async sendInvitations(
@@ -55,7 +55,7 @@ export class MemberService {
       userId = await this.getValidUserId(phoneNumber);
     }
 
-    const member = await this.membersService.findOneByUserIdAndSpaceId(
+    const member = await this.memberRepository.findOneByUserIdAndSpaceId(
       userId,
       spaceId,
     );
@@ -73,7 +73,7 @@ export class MemberService {
   }
 
   private async validateUserId(userId: string): Promise<string> {
-    const user: User = await this.usersService.findOneById(userId);
+    const user: User = await this.userRepository.findOneById(userId);
     if (!user)
       throw new BadRequestException(`User with ${userId} user id not found`);
 
@@ -81,7 +81,7 @@ export class MemberService {
   }
 
   private async getValidUserId(phoneNumber: string): Promise<string> {
-    const user: User = await this.usersService.findOneByPhoneNumber(
+    const user: User = await this.userRepository.findOneByPhoneNumber(
       phoneNumber,
     );
     if (!user) {
@@ -97,7 +97,7 @@ export class MemberService {
     const user: User = new User();
     user.phoneNumber = phoneNumber;
 
-    const newUser: User = await this.usersService.saveUser(user);
+    const newUser: User = await this.userRepository.saveUser(user);
 
     return newUser;
   }
@@ -107,7 +107,7 @@ export class MemberService {
     userId: string,
     createdBy: string,
   ): Promise<Member> {
-    const newMember: Member = await this.membersService.create(
+    const newMember: Member = await this.memberRepository.create(
       spaceId,
       userId,
       InvitationStatus.SENDED,

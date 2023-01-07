@@ -9,7 +9,7 @@ import { UploadResponse } from '../file/response/upload.response';
 export class UserService {
   constructor(
     private readonly fileService: FileService,
-    private readonly usersService: UserRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   public async uploadAvatarImage(
@@ -32,7 +32,7 @@ export class UserService {
 
     this.fileService.deletePublicFile(oldImageKey);
 
-    await this.usersService.updatePictureKey(
+    await this.userRepository.updatePictureKey(
       user.userId,
       uploadResponse.imageKey,
     );
