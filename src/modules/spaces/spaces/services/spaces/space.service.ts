@@ -7,7 +7,7 @@ import { InvitationStatus, SpaceRole } from '../../../../../core/enums';
 import { Member } from '../../../../../core/database/entities/member.entity';
 import { CreateSpaceResponse } from '../../response/create.response';
 import { User } from '../../../../../core/database/entities/user.entity';
-import { UpdateSpaceInfoModel } from '../../models/update-space-info.model';
+import { UpdateSpaceInfoDto } from '../../dtos/update-space-info.dto';
 
 @Injectable()
 export class SpaceService {
@@ -45,7 +45,7 @@ export class SpaceService {
   public async updateSpaceInfo(
     user: User,
     space: Space,
-    spaceInfo: UpdateSpaceInfoModel,
+    spaceInfo: UpdateSpaceInfoDto,
   ): Promise<Space> {
     await this.spacesService.updateNameAndDescriptionAndPercentages(
       space.spaceId,

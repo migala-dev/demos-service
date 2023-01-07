@@ -36,11 +36,9 @@ export class IsUserASpaceMemberGuard implements CanActivate {
     request: SpaceMemberRequest<ParamsWithSpaceId>,
   ): Promise<boolean> {
     const { spaceId } = request.params;
-    //TODO: get user id 
     
     const { user }: RequestWithUser = request;
-    //if (!user) throw new InternalServerErrorException('User not found');
-    const userIdMock: string = '8a3b0ece-cd25-4c81-ab91-0abacdf9357e';
+    if (!user) throw new InternalServerErrorException('User not found');
 
     request.space = await this.findSpace(spaceId);
     if (!request.space) throw new BadRequestException('Space not found');

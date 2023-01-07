@@ -14,11 +14,10 @@ import { CreateSpaceResponse } from './response/create.response';
 import { SpaceRoles } from '../../../core/decorators/space-roles.decorator';
 import { SpaceRole } from '../../../core/enums';
 import { UpdateSpaceInfoDto } from './dtos/update-space-info.dto';
-import { RequestWithSpace } from '../../../core/interfaces/request.interface';
-import { UpdateSpaceInfoModel } from './models/update-space-info.model';
 import { Space } from '../../../core/database/entities/space.entity';
 import { UserFromRequest } from '../../../core/decorators/auth/user-from-request/user-from-request.decorator';
 import { User } from '../../../core/database/entities/user.entity';
+import { SpaceFromRequest } from '../../../core/decorators/space-from-request.decorator';
 
 @Controller('spaces')
 export class SpaceController {
@@ -43,11 +42,10 @@ export class SpaceController {
   @SpaceRoles(SpaceRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   public updateSpaceInfo(
-    @Body() updateSpaceInfoDto: UpdateSpaceInfoDto,
-    @Req() { user, space }: RequestWithSpace,
+    @Body() spaceInfo: UpdateSpaceInfoDto,
+    @UserFromRequest() user: User,
+    @SpaceFromRequest() space: Space,
   ): Promise<Space> {
-    const updateSpaceInfo: UpdateSpaceInfoModel = { ...updateSpaceInfoDto };
-
-    return this.spaceService.updateSpaceInfo(user, space, updateSpaceInfo);
+    return this.spaceService.updateSpaceInfo(user, space, spaceInfo);
   }
 }

@@ -12,26 +12,28 @@ import { CreateSpaceResponse } from './response/create.response';
 import { Space } from '../../../core/database/entities/space.entity';
 import { Member } from '../../../core/database/entities/member.entity';
 import { UpdateSpaceInfoDto } from './dtos/update-space-info.dto';
-import { SpaceMemberGuard } from '../../../core/guards/space-member/space-member.guard';
 import { SpaceRolesGuard } from '../../../core/guards/space-roles/space-roles.guard';
 import { RequestWithSpace } from '../../../core/interfaces/request.interface';
 import {
   userMockFactory,
   spaceMockFactory,
 } from '../../../../test/utils/entities-mock.factory';
-import { UpdateSpaceInfoModel } from './models/update-space-info.model';
+import { MembersService } from '../../../core/database/services/member.service';
+import { SpacesService } from '../../../core/database/services/space.service';
 
 describe('SpacesController', () => {
   let controller: SpaceController;
   let spaceSpyService: jest.Mocked<SpaceService>;
-  let spaceMemberSpyGuard: jest.Mocked<SpaceMemberGuard>;
+  let memberSpyService: jest.Mocked<MembersService>;
+  let spaceSpyRepository: jest.Mocked<SpacesService>;
   let spaceRolesSpyGuard: jest.Mocked<SpaceRolesGuard>;
 
   let chance: Chance.Chance;
 
   beforeEach(async () => {
     spaceSpyService = createSpyObj(SpaceService);
-    spaceMemberSpyGuard = createSpyObj(SpaceMemberGuard);
+    memberSpyService = createSpyObj(MembersService);
+    spaceSpyRepository = createSpyObj(SpacesService);
     spaceRolesSpyGuard = createSpyObj(SpaceRolesGuard);
 
     chance = new Chance();
@@ -44,10 +46,16 @@ describe('SpacesController', () => {
           provide: SpaceService,
           useValue: spaceSpyService,
         },
+        {
+          provide: MembersService,
+          useValue: memberSpyService,
+        },
+        {
+          provide: SpacesService,
+          useValue: spaceSpyRepository,
+        }
       ],
     })
-      .overrideGuard(SpaceMemberGuard)
-      .useValue(spaceMemberSpyGuard)
       .overrideGuard(SpaceRolesGuard)
       .useValue(spaceRolesSpyGuard)
       .compile();
@@ -135,17 +143,17 @@ describe('SpacesController', () => {
     });
 
     it('should update space info', async () => {
-      const expectedUpdateSpaceInfo: UpdateSpaceInfoModel = {
-        ...bodyMock,
-      };
-
-      await controller.updateSpaceInfo(bodyMock, requestMock);
+      await controller.updateSpaceInfo(
+        bodyMock,
+        requestMock.user,
+        requestMock.space,
+      );
 
       expect(spaceSpyService.updateSpaceInfo).toBeCalledTimes(1);
       expect(spaceSpyService.updateSpaceInfo).toBeCalledWith(
         userMock,
         spaceMock,
-        expectedUpdateSpaceInfo,
+        bodyMock,
       );
     });
 
@@ -167,7 +175,11 @@ describe('SpacesController', () => {
         (async () => updatedSpaceMock)(),
       );
 
-      const result = await controller.updateSpaceInfo(bodyMock, requestMock);
+      const result = await controller.updateSpaceInfo(
+        bodyMock,
+        requestMock.user,
+        requestMock.space,
+      );
 
       expect(result).toStrictEqual(
         expect.objectContaining(expectedUpdatedSpace),

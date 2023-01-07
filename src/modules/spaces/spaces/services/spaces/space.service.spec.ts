@@ -16,7 +16,6 @@ import {
   spaceMockFactory,
 } from '../../../../../../test/utils/entities-mock.factory';
 import { User } from '../../../../../core/database/entities/user.entity';
-import { UpdateSpaceInfoModel } from '../../models/update-space-info.model';
 import { SpaceDto } from '../../dtos/space.dto';
 
 describe('SpacesService', () => {
@@ -151,7 +150,7 @@ describe('SpacesService', () => {
   describe('updateSpaceInfo method', () => {
     let userMock: User;
     let spaceMock: Space;
-    let spaceInfoMock: UpdateSpaceInfoModel;
+    let spaceInfoMock: SpaceDto;
 
     beforeEach(async () => {
       userMock = await userMockFactory(chance);
