@@ -52,7 +52,7 @@ export class FileService {
         Bucket: this.configService.get('AWS_S3_BUCKET'),
         Key: imageKey,
       },
-      (err: AWSError, data: S3.DeleteObjectOutput) => {
+      (err: AWSError) => {
         if (err) {
           Logger.error(`Can not delete: ${imageKey}`);
           Logger.error(`${err}`);

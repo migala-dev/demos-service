@@ -53,7 +53,7 @@ describe('SpacesController', () => {
         {
           provide: SpacesService,
           useValue: spaceSpyRepository,
-        }
+        },
       ],
     })
       .overrideGuard(SpaceRolesGuard)

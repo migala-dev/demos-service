@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './controllers/auth/auth.controller';
 import { AuthService } from './controllers/auth/services/auth/auth.service';
 import { CognitoService } from './controllers/auth/services/cognito/cognito.service';
-import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import jwkToPem, { JWK } from 'jwk-to-pem';
 import jwks from '../../../jwks.json';

@@ -4,7 +4,6 @@ import {
   HttpCode,
   Post,
   HttpStatus,
-  Req,
   Patch,
 } from '@nestjs/common';
 
