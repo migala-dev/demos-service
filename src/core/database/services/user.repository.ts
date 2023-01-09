@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, InsertResult, UpdateResult, Like } from 'typeorm';
+import { Repository, InsertResult, UpdateResult, Like, In } from 'typeorm';
 import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserRepository {
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -51,5 +52,15 @@ export class UserRepository {
   ): Promise<UpdateResult> {
     const user = this.usersRepository.create({ profilePictureKey });
     return this.usersRepository.update(userId, user);
+  }
+
+
+  public async findAllByUserIdsWithoutPhoneNumber(userIds: string[]): Promise<User[]> {
+    const users = await this.usersRepository.find({
+      where: {
+        userId: In(userIds)
+      }
+    });
+    return users.map(u => ({ ...u, phoneNumber: undefined } as User));
   }
 }

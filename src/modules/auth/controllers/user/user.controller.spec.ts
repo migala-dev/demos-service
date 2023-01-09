@@ -5,6 +5,8 @@ import { createSpyObj } from 'jest-createspyobj';
 import { UserController } from './user.controller';
 import { User } from '../../../../core/database/entities/user.entity';
 import { UserService } from './services/user/user.service';
+import { loginConstants } from '../../../../../test/mocks/constants/constants';
+import { RecoverData } from './models/recover-data.model';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -88,6 +90,22 @@ describe('UserController', () => {
       );
 
       expect(result).toStrictEqual(expect.objectContaining(expectedUser));
+    });
+
+
+    it('should return the user with the new profile picture key', async () => {
+      const userId = loginConstants.userId;
+      const user = { userId } as User;
+      const revoveredDataExpected = new RecoverData();
+
+      userSpyService.recoverUserData.mockReturnValue(
+        (async () => revoveredDataExpected)()
+      );
+
+      const result = await controller.recoverUserData(user);
+
+      expect(result).toBe(revoveredDataExpected);
+      expect(userSpyService.recoverUserData).toHaveBeenCalledWith(userId);
     });
   });
 });

@@ -9,15 +9,24 @@ import { User } from '../../../../../../core/database/entities/user.entity';
 import { UserRepository } from '../../../../../../core/database/services/user.repository';
 import { FileService } from '../file/file.service';
 import { UploadResponse } from '../file/response/upload.response';
+import { loginConstants } from '../../../../../../../test/mocks/constants/constants';
+import { Space } from '../../../../../../core/database/entities/space.entity';
+import { Member } from '../../../../../../core/database/entities/member.entity';
+import { SpaceRepository } from '../../../../../../core/database/services/space.repository';
+import { MemberRepository } from '../../../../../../core/database/services/member.repository';
 
 describe('UserService', () => {
   let service: UserService;
   let fileSpyService: jest.Mocked<FileService>;
-  let usersSpyService: jest.Mocked<UserRepository>;
+  let usersSpyRepository: jest.Mocked<UserRepository>;
+  let spaceSpyRepository: jest.Mocked<SpaceRepository>;
+  let memberSpyRepository: jest.Mocked<MemberRepository>;
 
   beforeEach(async () => {
     fileSpyService = createSpyObj(FileService);
-    usersSpyService = createSpyObj(UserRepository);
+    usersSpyRepository = createSpyObj(UserRepository);
+    spaceSpyRepository = createSpyObj(SpaceRepository);
+    memberSpyRepository = createSpyObj(MemberRepository);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,7 +37,15 @@ describe('UserService', () => {
         },
         {
           provide: UserRepository,
-          useValue: usersSpyService,
+          useValue: usersSpyRepository,
+        },
+        {
+          provide: SpaceRepository,
+          useValue: spaceSpyRepository,
+        },
+        {
+          provide: MemberRepository,
+          useValue: memberSpyRepository,
         },
       ],
     }).compile();
@@ -38,7 +55,7 @@ describe('UserService', () => {
     fileSpyService.uploadPublicFile.mockReturnValue(
       (async () => ({} as UploadResponse))(),
     );
-    usersSpyService.updatePictureKey.mockReturnValue(
+    usersSpyRepository.updatePictureKey.mockReturnValue(
       (async () => ({} as UpdateResult))(),
     );
   });
@@ -142,11 +159,47 @@ describe('UserService', () => {
 
       await service.uploadAvatarImage(userMock, fileMock);
 
-      expect(usersSpyService.updatePictureKey).toHaveBeenCalledTimes(1);
-      expect(usersSpyService.updatePictureKey).toHaveBeenCalledWith(
+      expect(usersSpyRepository.updatePictureKey).toHaveBeenCalledTimes(1);
+      expect(usersSpyRepository.updatePictureKey).toHaveBeenCalledWith(
         userMock.userId,
         newProfilePictureKey,
       );
+    });
+
+
+    it('should get recovered data', async () => {
+      const userId = loginConstants.userId;
+
+      const spacesExpected = [{ spaceId: 'space-1' } as Space, { spaceId: 'space-2' } as Space];
+      const membersExpected = [{ userId: 'user-1' } as Member, { userId: 'user-2' } as Member];
+      const usersExpected = [new User()];
+      
+      spaceSpyRepository.findAllActiveSpacesByUserId.mockReturnValue(
+        (async () => spacesExpected)()
+      );
+
+      memberSpyRepository.findAllActiveMemberBySpaceIds.mockReturnValue(
+        (async () => membersExpected)()
+      );
+
+      usersSpyRepository.findAllByUserIdsWithoutPhoneNumber.mockReturnValue(
+        (async () => usersExpected)()
+      );
+
+      const result = await service.recoverUserData(userId);
+
+      // SPACES
+      expect(result.spaces).toBe(spacesExpected);
+      expect(spaceSpyRepository.findAllActiveSpacesByUserId).toHaveBeenCalledWith(userId);
+
+      // MEMBERS
+      expect(result.members).toBe(membersExpected);  
+      expect(memberSpyRepository.findAllActiveMemberBySpaceIds).toHaveBeenCalledWith(['space-1', 'space-2']);
+    
+      // USERS
+      expect(result.users).toBe(usersExpected);
+      expect(usersSpyRepository.findAllByUserIdsWithoutPhoneNumber).toHaveBeenCalledWith(['user-1', 'user-2']);
+
     });
   });
 });
