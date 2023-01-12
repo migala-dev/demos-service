@@ -5,7 +5,6 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserRepository {
-
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -42,8 +41,14 @@ export class UserRepository {
     return this.usersRepository.save(user);
   }
 
-  public findOneById(userId: string) {
-    return this.usersRepository.findOneBy({ userId });
+  public async findOneById(userId: string): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ userId });
+
+    if (!!user) {
+      user.phoneNumber = undefined;
+    }
+
+    return user;
   }
 
   public updatePictureKey(
@@ -54,13 +59,14 @@ export class UserRepository {
     return this.usersRepository.update(userId, user);
   }
 
-
-  public async findAllByUserIdsWithoutPhoneNumber(userIds: string[]): Promise<User[]> {
+  public async findAllByUserIdsWithoutPhoneNumber(
+    userIds: string[],
+  ): Promise<User[]> {
     const users = await this.usersRepository.find({
       where: {
-        userId: In(userIds)
-      }
+        userId: In(userIds),
+      },
     });
-    return users.map(u => ({ ...u, phoneNumber: undefined } as User));
+    return users.map((u) => ({ ...u, phoneNumber: undefined } as User));
   }
 }

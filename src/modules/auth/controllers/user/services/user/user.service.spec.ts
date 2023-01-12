@@ -166,40 +166,50 @@ describe('UserService', () => {
       );
     });
 
-
     it('should get recovered data', async () => {
       const userId = loginConstants.userId;
 
-      const spacesExpected = [{ spaceId: 'space-1' } as Space, { spaceId: 'space-2' } as Space];
-      const membersExpected = [{ userId: 'user-1' } as Member, { userId: 'user-2' } as Member];
+      const spacesExpected = [
+        { spaceId: 'space-1' } as Space,
+        { spaceId: 'space-2' } as Space,
+      ];
+      const membersExpected = [
+        { userId: 'user-1' } as Member,
+        { userId: 'user-2' } as Member,
+      ];
       const usersExpected = [new User()];
-      
+
       spaceSpyRepository.findAllActiveSpacesByUserId.mockReturnValue(
-        (async () => spacesExpected)()
+        (async () => spacesExpected)(),
       );
 
       memberSpyRepository.findAllActiveMemberBySpaceIds.mockReturnValue(
-        (async () => membersExpected)()
+        (async () => membersExpected)(),
       );
 
       usersSpyRepository.findAllByUserIdsWithoutPhoneNumber.mockReturnValue(
-        (async () => usersExpected)()
+        (async () => usersExpected)(),
       );
 
       const result = await service.recoverUserData(userId);
 
       // SPACES
       expect(result.spaces).toBe(spacesExpected);
-      expect(spaceSpyRepository.findAllActiveSpacesByUserId).toHaveBeenCalledWith(userId);
+      expect(
+        spaceSpyRepository.findAllActiveSpacesByUserId,
+      ).toHaveBeenCalledWith(userId);
 
       // MEMBERS
-      expect(result.members).toBe(membersExpected);  
-      expect(memberSpyRepository.findAllActiveMemberBySpaceIds).toHaveBeenCalledWith(['space-1', 'space-2']);
-    
+      expect(result.members).toBe(membersExpected);
+      expect(
+        memberSpyRepository.findAllActiveMemberBySpaceIds,
+      ).toHaveBeenCalledWith(['space-1', 'space-2']);
+
       // USERS
       expect(result.users).toBe(usersExpected);
-      expect(usersSpyRepository.findAllByUserIdsWithoutPhoneNumber).toHaveBeenCalledWith(['user-1', 'user-2']);
-
+      expect(
+        usersSpyRepository.findAllByUserIdsWithoutPhoneNumber,
+      ).toHaveBeenCalledWith(['user-1', 'user-2']);
     });
   });
 });

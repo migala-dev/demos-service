@@ -17,17 +17,20 @@ import {
 } from '../../../../../../test/utils/entities-mock.factory';
 import { User } from '../../../../../core/database/entities/user.entity';
 import { SpaceDto } from '../../dtos/space.dto';
+import { UserRepository } from '../../../../../core/database/services/user.repository';
 
 describe('SpacesService', () => {
   let service: SpaceService;
   let spacesSpyService: jest.Mocked<SpaceRepository>;
   let membersSpyService: jest.Mocked<MemberRepository>;
+  let userSpyService: jest.Mocked<UserRepository>;
 
   let chance: Chance.Chance;
 
   beforeEach(async () => {
     spacesSpyService = createSpyObj(SpaceRepository);
     membersSpyService = createSpyObj(MemberRepository);
+    userSpyService = createSpyObj(UserRepository);
 
     chance = new Chance();
 
@@ -41,6 +44,10 @@ describe('SpacesService', () => {
         {
           provide: MemberRepository,
           useValue: membersSpyService,
+        },
+        {
+          provide: UserRepository,
+          useValue: userSpyService,
         },
       ],
     }).compile();
@@ -212,5 +219,37 @@ describe('SpacesService', () => {
         expect.objectContaining(expectedUpdatedSpace),
       );
     });
+  });
+
+  it('should return the space and the member if the invitation is already accepted', async () => {
+    const space = new Space();
+    const member = { invitationStatus: InvitationStatus.ACCEPTED } as Member;
+
+    const result = await service.getSpaceInfo(space, member);
+
+    expect(result.space).toBe(space);
+    expect(result.member).toBe(member);
+    expect(result.invitedBy).toBe(null);
+    expect(membersSpyService.updateInvitationStatus).toBeCalledTimes(0);
+  });
+
+  it('should return the space, member and invatedBy if the invitation is sended, and it has to mark it as recived', async () => {
+    const space = new Space();
+    const member = {
+      invitationStatus: InvitationStatus.SENDED,
+      createdBy: 'mock-user',
+    } as Member;
+    const user = new User();
+
+    userSpyService.findOneById.mockReturnValue((async () => user)());
+
+    const result = await service.getSpaceInfo(space, member);
+
+    expect(result.space).toBe(space);
+    expect(result.member).toBe(member);
+    expect(result.invitedBy).toBe(user);
+    expect(membersSpyService.updateInvitationStatus).toBeCalledTimes(1);
+    expect(userSpyService.findOneById).toBeCalledTimes(1);
+    expect(userSpyService.findOneById).toHaveBeenCalledWith('mock-user');
   });
 });

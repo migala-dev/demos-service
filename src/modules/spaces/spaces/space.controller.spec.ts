@@ -186,4 +186,18 @@ describe('SpacesController', () => {
       );
     });
   });
+
+  it('should get space info', async () => {
+    const space = new Space();
+    const member = new Member();
+
+    spaceSpyService.getSpaceInfo.mockReturnValue(
+      (async () => ({ space, member }))(),
+    );
+
+    const result = await controller.getSpaceInfo(space, member);
+
+    expect(result.space).toBe(space);
+    expect(result.member).toBe(member);
+  });
 });

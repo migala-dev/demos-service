@@ -26,10 +26,7 @@ export class UserController {
   }
 
   @Get('recover-user-data')
-  public recoverUserData(
-    @UserFromRequest() user: User
-  ): Promise<RecoverData> {
+  public recoverUserData(@UserFromRequest() user: User): Promise<RecoverData> {
     return this.userService.recoverUserData(user.userId);
   }
 }
-

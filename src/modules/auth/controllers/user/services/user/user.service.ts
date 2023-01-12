@@ -4,13 +4,11 @@ import { User } from '../../../../../../core/database/entities/user.entity';
 import { UserRepository } from '../../../../../../core/database/services/user.repository';
 import { UploadResponse } from '../file/response/upload.response';
 import { RecoverData } from '../../models/recover-data.model';
-import { SpaceService } from '../../../../../spaces/spaces/services/spaces/space.service';
 import { SpaceRepository } from '../../../../../../core/database/services/space.repository';
 import { MemberRepository } from '../../../../../../core/database/services/member.repository';
 
 @Injectable()
 export class UserService {
-
   constructor(
     private readonly fileService: FileService,
     private readonly userRepository: UserRepository,
@@ -48,19 +46,25 @@ export class UserService {
 
   public async recoverUserData(userId: string): Promise<RecoverData> {
     // SPACES
-    const spaces = await this.spaceRepository.findAllActiveSpacesByUserId(userId);
+    const spaces = await this.spaceRepository.findAllActiveSpacesByUserId(
+      userId,
+    );
     // MEMBERS
-    const spaceIds = spaces.map(space => space.spaceId);
-    const members = await this.memberRepository.findAllActiveMemberBySpaceIds(spaceIds);
+    const spaceIds = spaces.map((space) => space.spaceId);
+    const members = await this.memberRepository.findAllActiveMemberBySpaceIds(
+      spaceIds,
+    );
 
     // USERS
     const userIds = members.map((u) => u.userId);
-    const users = await this.userRepository.findAllByUserIdsWithoutPhoneNumber(userIds);
+    const users = await this.userRepository.findAllByUserIdsWithoutPhoneNumber(
+      userIds,
+    );
 
     return {
       spaces,
       members,
-      users
+      users,
     };
   }
 }
