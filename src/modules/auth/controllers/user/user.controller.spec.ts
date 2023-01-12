@@ -92,14 +92,13 @@ describe('UserController', () => {
       expect(result).toStrictEqual(expect.objectContaining(expectedUser));
     });
 
-
     it('should return the user with the new profile picture key', async () => {
       const userId = loginConstants.userId;
       const user = { userId } as User;
       const revoveredDataExpected = new RecoverData();
 
       userSpyService.recoverUserData.mockReturnValue(
-        (async () => revoveredDataExpected)()
+        (async () => revoveredDataExpected)(),
       );
 
       const result = await controller.recoverUserData(user);

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository, UpdateResult } from 'typeorm';
+import { Equal, Repository, UpdateResult } from 'typeorm';
 import { mapEntitySnakeCaseToCamelCase } from '../../utils/map-entity-snake-case-to-camel-case.util';
 import { MemberStatussesUtil } from '../../utils/members-statusses.utils';
 import { Member } from '../entities/member.entity';
@@ -33,7 +33,9 @@ export class SpaceRepository {
   }
 
   public findOneById(spaceId: string) {
-    return this.spacesRepository.findOneBy({ spaceId });
+    return this.spacesRepository.findOne({
+      where: { spaceId: Equal(spaceId) },
+    });
   }
 
   public updateNameAndDescriptionAndPercentages(
@@ -66,6 +68,6 @@ export class SpaceRepository {
       .innerJoin(Member, 'member', 'spaces.spaceId = member.spaceId')
       .getRawMany();
 
-    return spaces.map(s => mapEntitySnakeCaseToCamelCase<Space>(Space, s));
+    return spaces.map((s) => mapEntitySnakeCaseToCamelCase<Space>(Space, s));
   }
 }
