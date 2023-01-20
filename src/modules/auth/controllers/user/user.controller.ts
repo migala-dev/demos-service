@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -18,6 +20,7 @@ export class UserController {
 
   @Post('avatar')
   @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.OK)
   public updateProfilePicture(
     @UserFromRequest() user: User,
     @UploadedFile() file: Express.Multer.File,
@@ -26,6 +29,7 @@ export class UserController {
   }
 
   @Get('recover-user-data')
+  @HttpCode(HttpStatus.OK)
   public recoverUserData(@UserFromRequest() user: User): Promise<RecoverData> {
     return this.userService.recoverUserData(user.userId);
   }

@@ -27,7 +27,7 @@ export class SpaceController {
   constructor(private readonly spaceService: SpaceService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   public async create(
     @UserFromRequest() { userId }: User,
     @Body() spaceDto: SpaceDto,

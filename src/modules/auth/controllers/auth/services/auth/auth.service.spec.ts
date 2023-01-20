@@ -10,17 +10,18 @@ import { UserDevicesRepository } from '../../../../../../core/database/services/
 import { UserDevice } from '../../../../../../core/database/entities/user-device.entity';
 import { UserVerified } from '../../models/user-verified.model';
 import { Tokens } from '../../models/tokens.model';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
   let cognitoSpyService: jest.Mocked<CognitoService>;
-  let userSpyService: jest.Mocked<UserRepository>;
-  let userDevicesSpyService: jest.Mocked<UserDevicesRepository>;
+  let userSpyRepository: jest.Mocked<UserRepository>;
+  let userDevicesSpyRepository: jest.Mocked<UserDevicesRepository>;
 
   beforeEach(async () => {
     cognitoSpyService = createSpyObj(CognitoService);
-    userSpyService = createSpyObj(UserRepository);
-    userDevicesSpyService = createSpyObj(UserDevicesRepository);
+    userSpyRepository = createSpyObj(UserRepository);
+    userDevicesSpyRepository = createSpyObj(UserDevicesRepository);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -30,21 +31,21 @@ describe('AuthService', () => {
         },
         {
           provide: UserRepository,
-          useValue: userSpyService,
+          useValue: userSpyRepository,
         },
         {
           provide: UserDevicesRepository,
-          useValue: userDevicesSpyService,
+          useValue: userDevicesSpyRepository,
         },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
 
-    userSpyService.findOneByCognitoId.mockReturnValue(
+    userSpyRepository.findOneByCognitoId.mockReturnValue(
       (async () => ({} as User))(),
     );
-    userDevicesSpyService.createOrUpdate.mockReturnValue(
+    userDevicesSpyRepository.createOrUpdate.mockReturnValue(
       (async () => ({} as UserDevice))(),
     );
   });
@@ -79,23 +80,23 @@ describe('AuthService', () => {
           loginConstants.cognitoMockId,
         ))(),
     );
-    userSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
-    userSpyService.findOneByPhoneNumber.mockReturnValue((async () => null)());
-    userSpyService.create.mockReturnValue((async () => ({} as any))());
+    userSpyRepository.findOneByCognitoId.mockReturnValue((async () => null)());
+    userSpyRepository.findOneByPhoneNumber.mockReturnValue((async () => null)());
+    userSpyRepository.create.mockReturnValue((async () => ({} as any))());
 
     await service.login(phoneNumber);
 
-    expect(userSpyService.findOneByCognitoId).toHaveBeenCalled();
-    expect(userSpyService.findOneByPhoneNumber).toHaveBeenCalled();
-    expect(userSpyService.findOneByPhoneNumber.mock.calls[0][0]).toBe(
+    expect(userSpyRepository.findOneByCognitoId).toHaveBeenCalled();
+    expect(userSpyRepository.findOneByPhoneNumber).toHaveBeenCalled();
+    expect(userSpyRepository.findOneByPhoneNumber.mock.calls[0][0]).toBe(
       phoneNumber,
     );
-    expect(userSpyService.create).toHaveBeenCalled();
-    expect(userSpyService.create.mock.calls[0][0]).toBe(phoneNumber);
-    expect(userSpyService.create.mock.calls[0][1]).toBe(
+    expect(userSpyRepository.create).toHaveBeenCalled();
+    expect(userSpyRepository.create.mock.calls[0][0]).toBe(phoneNumber);
+    expect(userSpyRepository.create.mock.calls[0][1]).toBe(
       loginConstants.cognitoMockId,
     );
-    expect(userSpyService.updateCognitoId.mock.calls.length).toBe(0);
+    expect(userSpyRepository.updateCognitoId.mock.calls.length).toBe(0);
   });
 
   it('should update the cognitoId if the cognito id it was not found and there is a user created with that phone', async () => {
@@ -108,18 +109,18 @@ describe('AuthService', () => {
         ))(),
     );
     const userId = 'user-id-mock';
-    userSpyService.findOneByCognitoId.mockReturnValue((async () => null)());
-    userSpyService.findOneByPhoneNumber.mockReturnValue(
+    userSpyRepository.findOneByCognitoId.mockReturnValue((async () => null)());
+    userSpyRepository.findOneByPhoneNumber.mockReturnValue(
       (async () => ({ userId } as any))(),
     );
-    userSpyService.updateCognitoId.mockReturnValue((async () => ({} as any))());
+    userSpyRepository.updateCognitoId.mockReturnValue((async () => ({} as any))());
 
     await service.login(phoneNumber);
 
-    expect(userSpyService.create.mock.calls.length).toBe(0);
-    expect(userSpyService.updateCognitoId).toHaveBeenCalled();
-    expect(userSpyService.updateCognitoId.mock.calls[0][0]).toBe(userId);
-    expect(userSpyService.updateCognitoId.mock.calls[0][1]).toBe(
+    expect(userSpyRepository.create.mock.calls.length).toBe(0);
+    expect(userSpyRepository.updateCognitoId).toHaveBeenCalled();
+    expect(userSpyRepository.updateCognitoId.mock.calls[0][0]).toBe(userId);
+    expect(userSpyRepository.updateCognitoId.mock.calls[0][1]).toBe(
       loginConstants.cognitoMockId,
     );
   });
@@ -172,11 +173,11 @@ describe('AuthService', () => {
     it('should createOrUpdate method from UserDevicesService be called', async () => {
       await service.registerUserDevice(userId, deviceId);
 
-      expect(userDevicesSpyService.createOrUpdate).toHaveBeenCalledTimes(1);
+      expect(userDevicesSpyRepository.createOrUpdate).toHaveBeenCalledTimes(1);
     });
 
     it('should return a UserDevice instance', async () => {
-      userDevicesSpyService.createOrUpdate.mockReturnValue(
+      userDevicesSpyRepository.createOrUpdate.mockReturnValue(
         (async () => {
           const userDevice: UserDevice = new UserDevice();
 
@@ -192,11 +193,18 @@ describe('AuthService', () => {
       expect(result instanceof UserDevice).toBeTruthy();
     });
 
-    it('should verify code', async () => {
-      const expectedUserVerified = new UserVerified();
+    it('should verify code and return user', async () => {
+      const expectedTokens = new Tokens()
+      const expectedBucketName = 'demos-bucket';
       cognitoSpyService.verifyCode.mockReturnValue(
         (async () => {
-          return expectedUserVerified;
+          return new UserVerified(expectedTokens, expectedBucketName);
+        })(),
+      );
+      const expectedUser = new User();
+      userSpyRepository.findOneByPhoneNumber.mockReturnValue(
+        (async () => {
+          return expectedUser;
         })(),
       );
 
@@ -210,11 +218,69 @@ describe('AuthService', () => {
         session,
       );
 
-      expect(expectedUserVerified).toBe(result);
-      expect(cognitoSpyService.verifyCode.mock.calls[0][0]).toBe(phoneNumber);
-      expect(cognitoSpyService.verifyCode.mock.calls[0][1]).toBe(code);
-      expect(cognitoSpyService.verifyCode.mock.calls[0][2]).toBe(session);
+      expect(cognitoSpyService.verifyCode).toHaveBeenCalledTimes(1);
+      expect(cognitoSpyService.verifyCode).toHaveBeenCalledWith(
+        phoneNumber,
+        code,
+        session
+      );
+      
+      expect(userSpyRepository.findOneByPhoneNumber).toHaveBeenCalledTimes(1);
+      expect(userSpyRepository.findOneByPhoneNumber).toHaveBeenCalledWith(phoneNumber);
+
+      expect(result.bucketName).toBe(expectedBucketName);
+      expect(result.tokens).toBe(expectedTokens);
+      expect(result.user).toBe(expectedUser);
     });
+
+    it('should not look for user if the code session do not return the tokens', async () => {
+      cognitoSpyService.verifyCode.mockReturnValue(
+        (async () => {
+          return UserVerified.withSession('session-mock');
+        })(),
+      );
+
+      const phoneNumber = loginConstants.phoneNumber;
+      const code = '010202';
+      const session = loginConstants.sessionMockToken;
+
+      const result: UserVerified = await service.verifyCode(
+        phoneNumber,
+        code,
+        session,
+      );
+
+      expect(cognitoSpyService.verifyCode).toHaveBeenCalledTimes(1);
+      expect(cognitoSpyService.verifyCode).toHaveBeenCalledWith(
+        phoneNumber,
+        code,
+        session
+      );
+      
+      expect(userSpyRepository.findOneByPhoneNumber).toHaveBeenCalledTimes(0);
+
+      expect(result.session).toBe('session-mock');
+    });
+
+  it('should handle unauthorized error if the session is not correct', async () => {
+    cognitoSpyService.verifyCode.mockReturnValue(
+      (async () => {
+        throw { message: 'Not valid session' };
+      })(),
+    );
+
+    const phoneNumber = loginConstants.phoneNumber;
+    const code = '010202';
+    const session = loginConstants.sessionMockToken;
+    
+    const execute = () => service.verifyCode(
+      phoneNumber,
+      code,
+      session,
+    );
+
+    await expect(execute).rejects.toThrow(new HttpException('Not valid session', HttpStatus.UNAUTHORIZED));
+  });
 
     it('should refresh token', async () => {
       const expectedTokens = new Tokens();
@@ -237,7 +303,7 @@ describe('AuthService', () => {
       const expectedResult: UserDevice = new UserDevice();
       expectedResult.userId = userId;
       expectedResult.deviceId = deviceId;
-      userDevicesSpyService.createOrUpdate.mockReturnValue(
+      userDevicesSpyRepository.createOrUpdate.mockReturnValue(
         (async () => {
           const userDevice = new UserDevice();
           userDevice.userId = userId;

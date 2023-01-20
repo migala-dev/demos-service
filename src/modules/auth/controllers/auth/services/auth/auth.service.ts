@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CognitoService } from '../cognito/cognito.service';
 import { CognitoUser } from '../../models/cognito-user.model';
 import { UserRepository } from '../../../../../../core/database/services/user.repository';
@@ -55,7 +55,17 @@ export class AuthService {
     code: string,
     session: string,
   ): Promise<UserVerified> {
-    return await this.cognitoService.verifyCode(phoneNumber, code, session);
+    try {
+      const userVerified = await this.cognitoService.verifyCode(phoneNumber, code, session);
+  
+      if (userVerified.isVerifed) {
+        const user = await this.userRepository.findOneByPhoneNumber(phoneNumber);
+        userVerified.user = user;
+      }
+      return userVerified;
+    } catch(err) {
+      throw new HttpException(err.message, HttpStatus.UNAUTHORIZED);
+    }
   }
 
   public async refreshTokens(refreshToken: string): Promise<Tokens> {

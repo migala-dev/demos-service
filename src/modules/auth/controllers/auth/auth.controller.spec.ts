@@ -66,6 +66,30 @@ describe('AuthController', () => {
       expect(controller.registerUserDevice).toBeDefined();
     });
 
+    it('should login', () => {
+      const phoneNumber = loginConstants.phoneNumber;
+
+      controller.login({ phoneNumber });
+
+      expect(authSpyService.login).toHaveBeenCalledTimes(1);
+      expect(authSpyService.login).toHaveBeenCalledWith(phoneNumber);
+    })
+    
+    it('should verify code', () => {
+      const phoneNumber = loginConstants.phoneNumber;
+      const code = '000000';
+      const session = 'mock-aws-session';
+
+      controller.verifyCode({ phoneNumber, code, session });
+
+      expect(authSpyService.verifyCode).toHaveBeenCalledTimes(1);
+      expect(authSpyService.verifyCode).toHaveBeenCalledWith(
+        phoneNumber,
+        code,
+        session
+      );
+    })
+
     it('should be a function', () => {
       expect(typeof controller.registerUserDevice).toBe('function');
     });
